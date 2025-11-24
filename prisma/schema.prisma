@@ -1,0 +1,154 @@
+// Updated Prisma schema for enriched questions with confidence scoring
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// Processing job tracking
+model ProcessingJob {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId         String   @unique
+  pdfHash       String?  @unique // SHA-256 hash of PDF content for deduplication
+  filename      String
+  originalPath  String
+  status        String   // pending, processing, completed, failed
+  batchSize     Int      @default(5)
+  totalPages    Int?
+  apiCallsUsed  Int?
+  totalQuestions Int?    // Total questions extracted
+  errorMessage  String?
+  resultPath    String?
+  resultData    Json?    // Original enriched_questions.json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relations
+  questions     Question[]
+
+  @@map("processing_jobs")
+}
+
+// Main question entity (parent question with metadata)
+model Question {
+  id                  String   @id @default(auto()) @map("_id") @db.ObjectId
+  jobId               String
+  questionNum         String   // Original question number (e.g., "1", "5", "13")
+  pageNumber          Int
+  questionText        String   // Main question text
+  
+  // Enriched metadata
+  topic               String
+  chapter             String
+  subject             String?  @default("Mathematics")
+  schoolLevel         String   // e.g., "Secondary 2"
+  difficulty          String   // easy, medium, hard
+  questionType        String   // open_ended, multiple_choice, calculation
+  timeEstimateMinutes Int?
+  
+  // Educational data
+  learningOutcomes    String[] // Array of learning outcomes
+  keywords            String[] // Searchable keywords
+  prerequisiteTopics  String[] // Topics student should know first
+  commonMistakes      String[] // Common errors to watch for
+  
+  // Marks and status
+  totalMarks          Int
+  status              String   @default("draft") // draft, verified, published
+  isVerified          Boolean  @default(false)
+  
+  // Relations
+  job                 ProcessingJob @relation(fields: [jobId], references: [jobId], onDelete: Cascade)
+  parts               QuestionPart[] // Sub-questions (a, b, c, etc.)
+  diagrams            Diagram[]      // Associated diagrams
+  
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("questions")
+  @@index([jobId])
+  @@index([topic])
+  @@index([chapter])
+  @@index([schoolLevel])
+  @@index([difficulty])
+}
+
+// Question part/sub-question (used for quiz generation)
+model QuestionPart {
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId        String   @db.ObjectId
+  partLabel         String   // "(a)", "(b)", "(c)" or "" for single-part
+  questionText      String   // Part-specific question text
+  marks             Int
+  
+  // Answer data
+  sampleAnswer      String?
+  explanation       String?
+  hints             String[] // Array of hints
+  
+  // Multiple choice options (if applicable)
+  options           Json?    // {value: "a", label: "Option text"}[]
+  correctOption     Int?     // Index of correct option (0, 1, 2, 3)
+  
+  // Relations
+  question          Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  createdAt         DateTime @default(now())
+
+  @@map("question_parts")
+  @@index([questionId])
+}
+
+// Diagram with confidence scoring
+model Diagram {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  questionId     String   @db.ObjectId
+  pageNumber     Int
+  
+  // MinIO storage
+  minioUrl       String   // Full URL: http://minio:9000/bucket/job_id/diagram.png
+  minioKey       String   // Object key: job_id/page_4_diagram_ai.png
+  fileName       String   // Original: page_4_diagram_ai.png
+  contentType    String   @default("image/png")
+  fileSize       Int      // Bytes
+  
+  // Detection metadata
+  source         String   // hybrid_ai_detection, gemini_bbox, fallback
+  confidence     Float?   // 0-100 confidence score (null for fallback diagrams)
+  area           Int?     // Diagram area in pixels
+  density        Float?   // Content density percentage
+  bbox           Json?    // {x1, y1, x2, y2} bounding box
+  
+  // Relations
+  question       Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  
+  uploadedAt     DateTime @default(now())
+
+  @@map("diagrams")
+  @@index([questionId])
+  @@index([confidence]) // For filtering high-confidence diagrams
+}
+
+// User quiz attempts (for tracking)
+model QuizAttempt {
+  id              String   @id @default(auto()) @map("_id") @db.ObjectId
+  userName        String
+  userEmail       String
+  
+  // Quiz data
+  questionIds     String[] // Array of question IDs used
+  answers         Json     // {questionPartId: selectedAnswer}
+  score           Int?
+  totalMarks      Int
+  
+  // Metadata
+  startedAt       DateTime @default(now())
+  completedAt     DateTime?
+  duration        Int?     // Seconds
+  
+  @@map("quiz_attempts")
+  @@index([userEmail])
+}
