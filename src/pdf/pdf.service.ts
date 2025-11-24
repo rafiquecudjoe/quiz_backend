@@ -425,7 +425,7 @@ export class PdfService {
       for (const part of enrichedQ.parts) {
         // Use part marks if provided, otherwise use difficulty-based marks
         const partMarks = part.marks || defaultMarks;
-        
+
         await this.prisma.questionPart.create({
           data: {
             question: {
@@ -648,6 +648,12 @@ export class PdfService {
       }
     }
 
+    // Renumber the selected questions from 1 for display
+    selected = selected.map((q, index) => ({
+      ...q,
+      number: index + 1,
+    }));
+
     return {
       ...result,
       totalQuestions: result.questions.length,
@@ -683,7 +689,7 @@ export class PdfService {
       if (part) {
         totalMarks += part.marks;
         const correctOptionIndex = part.correctOption;
-        
+
         const optionsArray = (part.options as { label: string; text: string }[]) || [];
         const correctOption = optionsArray[correctOptionIndex]?.label;
         const userAnswer = answers[questionId];
@@ -782,10 +788,13 @@ export class PdfService {
           );
 
           // If database is insufficient, add fallback suggestions
-          if (practiceQuestions.length < wrongAnswers.length * 2) {
+          const targetCount = wrongAnswers.length * 2;
+          if (practiceQuestions.length < targetCount) {
+            const shortage = targetCount - practiceQuestions.length;
+            this.logger.log(`Database has ${practiceQuestions.length}/${targetCount} practice questions. Generating ${shortage} fallback questions.`);
             const fallbackQs = await this.quizAnalysis.generateFallbackPracticeQuestions(
               analysisResults.wrongAnswers,
-              wrongAnswers.length,
+              shortage,
             );
             practiceQuestions = [...practiceQuestions, ...fallbackQs];
           }

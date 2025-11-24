@@ -326,17 +326,4 @@ export class PdfController {
   }
 }
 
-@Controller()
-export class PublicUploadController {
-  constructor(private readonly pdfService: PdfService) {}
 
-  // Provide a public /upload POST for legacy/BBc-main client that expects this path
-  @Post('upload')
-  @UseInterceptors(FileInterceptor('file'))
-  async upload(@UploadedFile() file: Express.Multer.File, @Body('batchSize') batchSize?: number) {
-    if (!file) {
-      throw new BadRequestException('file is required in the "file" field');
-    }
-    return this.pdfService.processPdf(file, batchSize);
-  }
-}

@@ -17,7 +17,7 @@ import { EmailModule } from '../email/email.module';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => {
         const uploadDir = configService.get('UPLOAD_DIR') || './uploads';
-        
+
         // Ensure upload directory exists
         if (!fs.existsSync(uploadDir)) {
           fs.mkdirSync(uploadDir, { recursive: true });
@@ -50,5 +50,5 @@ import { EmailModule } from '../email/email.module';
   controllers: [PdfController],
   providers: [PdfService, PythonExecutorService, PdfGeneratorService, QuizAnalysisService],
 })
-export class PdfModule {}
+export class PdfModule { }
 
