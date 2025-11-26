@@ -12,7 +12,7 @@ datasource db {
 model ProcessingJob {
   id            String   @id @default(auto()) @map("_id") @db.ObjectId
   jobId         String   @unique
-  pdfHash       String?  @unique // SHA-256 hash of PDF content for deduplication
+  pdfHash       String?  // SHA-256 hash of PDF content for deduplication
   filename      String
   originalPath  String
   status        String   // pending, processing, completed, failed
@@ -45,6 +45,7 @@ model Question {
   chapter             String
   subject             String?  @default("Mathematics")
   schoolLevel         String   // e.g., "Secondary 2"
+  questionLevel       String?  // e.g., "Grade 1", "Grade 2"
   difficulty          String   // easy, medium, hard
   questionType        String   // open_ended, multiple_choice, calculation
   timeEstimateMinutes Int?
@@ -92,6 +93,9 @@ model QuestionPart {
   // Multiple choice options (if applicable)
   options           Json?    // {value: "a", label: "Option text"}[]
   correctOption     Int?     // Index of correct option (0, 1, 2, 3)
+  
+  // Status
+  isExcluded        Boolean  @default(false)
   
   // Relations
   question          Question @relation(fields: [questionId], references: [id], onDelete: Cascade)

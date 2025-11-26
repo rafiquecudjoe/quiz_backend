@@ -8,8 +8,18 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const configService = app.get(ConfigService);
 
-  // Enable CORS
-  app.enableCors();
+  // Enable CORS for frontend and Wix
+  app.enableCors({
+    origin: [
+      'http://localhost:5173',  // Local dev
+      'http://localhost:3000',  // Local dev alternate
+      /\.vercel\.app$/,         // All Vercel deployments
+      /\.wixsite\.com$/,        // Wix sites
+      /\.editorx\.io$/,         // EditorX sites
+      'https://c1d24112188d.ngrok-free.app'
+    ],
+    credentials: true,
+  });
 
   // Global validation pipe
   app.useGlobalPipes(

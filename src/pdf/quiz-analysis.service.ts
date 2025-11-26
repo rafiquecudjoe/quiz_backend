@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../prisma/prisma.service';
 
 interface WrongAnswer {
@@ -23,7 +24,10 @@ interface PracticeQuestion {
 export class QuizAnalysisService {
   private readonly logger = new Logger(QuizAnalysisService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly configService: ConfigService,
+  ) { }
 
   /**
    * Analyze quiz attempt and extract wrong answers with metadata
@@ -62,10 +66,23 @@ export class QuizAnalysisService {
 
       const optionsArray = (part.options as { label: string; text: string }[]) || [];
       const correctOptionIndex = part.correctOption;
-      const correctOption = optionsArray[correctOptionIndex]?.label;
+      // Handle case where correctOption might be 0 (falsy) but valid
+      const correctOptionObj = correctOptionIndex !== null && correctOptionIndex !== undefined
+        ? optionsArray[correctOptionIndex]
+        : null;
+
+      const correctOptionLabel = correctOptionObj?.label;
       const userAnswer = answers[questionId];
 
-      if (correctOption === userAnswer) {
+      // Normalize for comparison
+      const normalizedCorrect = correctOptionLabel?.trim().toLowerCase();
+      const normalizedUser = userAnswer?.trim().toLowerCase();
+
+      this.logger.debug(
+        `Q: ${questionId} | User: "${userAnswer}" (${normalizedUser}) | Correct: "${correctOptionLabel}" (${normalizedCorrect}) | Index: ${correctOptionIndex}`
+      );
+
+      if (normalizedCorrect && normalizedUser && normalizedCorrect === normalizedUser) {
         correctAnswers.push(questionId);
       } else {
         wrongAnswers.push({
@@ -110,7 +127,6 @@ export class QuizAnalysisService {
     jobId: string,
   ): Promise<PracticeQuestion[]> {
     const practiceQuestions: PracticeQuestion[] = [];
-    const difficultyLevels = ['easy', 'medium', 'hard'];
 
     // Get all question IDs from the quiz parts to avoid suggesting them again
     const allQuizPartIds = [...wrongAnswers.map((wa) => wa.questionId), ...correctAnswers];
@@ -122,11 +138,13 @@ export class QuizAnalysisService {
       ...new Set(quizPartsWithQuestionId.map((p) => p.questionId).filter(Boolean)),
     ];
 
-    this.logger.log(`Analyzing ${wrongAnswers.length} wrong answers for practice questions`);
+    this.logger.log(`Analyzing ${wrongAnswers.length} wrong answers and ${correctAnswers.length} correct answers`);
 
-    // 1. For WRONG answers: Find 2 questions on next level in same topic
+    // 1. For WRONG answers: Find 2 questions on next level
     for (const wrong of wrongAnswers) {
       const nextDifficultyLevel = this.getNextDifficultyLevel(wrong.difficulty);
+      let questionsFound = 0;
+      const targetCount = 2;
 
       // Try to find questions at next level on same topic
       let practiceQs = await this.prisma.question.findMany({
@@ -136,88 +154,55 @@ export class QuizAnalysisService {
           id: { notIn: allQuizQuestionIds },
         },
         include: { parts: true },
-        take: 2,
+        take: targetCount,
       });
 
-      this.logger.log(
-        `Found ${practiceQs.length}/2 next-level questions for topic "${wrong.topic}"`,
-      );
-
-      // FALLBACK 1: If not enough, search related topics in same chapter
-      if (practiceQs.length < 2) {
-        const relatedQs = await this.prisma.question.findMany({
-          where: {
-            chapter: wrong.chapter,
-            difficulty: { in: nextDifficultyLevel },
-            topic: { not: wrong.topic }, // Different topic but same chapter
-            id: { notIn: allQuizQuestionIds },
-          },
-          include: { parts: true },
-          take: 2 - practiceQs.length,
-        });
-
-        this.logger.log(`Found ${relatedQs.length} related chapter questions as fallback`);
-        practiceQs = [...practiceQs, ...relatedQs];
+      // Add found questions
+      if (practiceQs.length > 0) {
+        this.logger.log(`Found ${practiceQs.length} practice questions in DB for ${wrong.topic}`);
       }
 
-      // FALLBACK 2: If still not enough, search same difficulty level
-      if (practiceQs.length < 2) {
-        const sameLevelQs = await this.prisma.question.findMany({
-          where: {
-            topic: wrong.topic,
-            difficulty: wrong.difficulty,
-            id: { notIn: allQuizQuestionIds },
-          },
-          include: { parts: true },
-          take: 2 - practiceQs.length,
-        });
-
-        this.logger.log(
-          `Found ${sameLevelQs.length} same-level questions as secondary fallback`,
-        );
-        practiceQs = [...practiceQs, ...sameLevelQs];
-      }
-
-      // FALLBACK 3: If STILL not enough, log warning and document insufficient data
-      if (practiceQs.length < 2) {
-        this.logger.warn(
-          `⚠️ INSUFFICIENT DATA: Only found ${practiceQs.length}/2 practice questions for topic "${wrong.topic}" at level "${nextDifficultyLevel}". Database needs more questions in this area.`,
-        );
-      }
-
-      // Add to practice questions
       for (const pq of practiceQs) {
         for (const part of pq.parts) {
-          practiceQuestions.push({
-            id: part.id,
-            topic: pq.topic,
-            text: part.questionText,
-            difficulty: pq.difficulty,
-            level: 'next_level',
-            marks: part.marks,
-            explanation: part.explanation,
-          });
+          if (questionsFound < targetCount) {
+            practiceQuestions.push({
+              id: part.id,
+              topic: pq.topic,
+              text: part.questionText,
+              difficulty: pq.difficulty,
+              level: 'next_level',
+              marks: part.marks,
+              explanation: part.explanation,
+            });
+            questionsFound++;
+          }
         }
+      }
+
+      // If not enough questions, use Gemini Fallback
+      if (questionsFound < targetCount) {
+        const needed = targetCount - questionsFound;
+        this.logger.log(`Generating ${needed} AI fallback questions for wrong answer in ${wrong.topic}`);
+
+        // Create a temporary array of wrong answers just for this topic to pass to fallback
+        const topicWrongAnswers = Array(needed).fill(wrong);
+        const aiQuestions = await this.generateFallbackPracticeQuestions(topicWrongAnswers, needed);
+
+        practiceQuestions.push(...aiQuestions);
       }
     }
 
-    // 2. For CORRECT answers: Find 1 question on same level in same topic
-    for (const correct of correctAnswers) {
+    // 2. For CORRECT answers: Find 1 question on same level
+    for (const correctId of correctAnswers) {
       const part = await this.prisma.questionPart.findUnique({
-        where: { id: correct },
-        include: {
-          question: {
-            select: {
-              topic: true,
-              difficulty: true,
-              chapter: true,
-              jobId: true,
-            },
-          },
-        },
+        where: { id: correctId },
+        include: { question: true },
       });
 
       if (!part) continue;
+
+      let questionsFound = 0;
+      const targetCount = 1;
 
       let practiceQs = await this.prisma.question.findMany({
         where: {
@@ -226,40 +211,48 @@ export class QuizAnalysisService {
           id: { notIn: allQuizQuestionIds },
         },
         include: { parts: true },
-        take: 1,
+        take: targetCount,
       });
-
-      // FALLBACK: If no same-difficulty questions, search related topics
-      if (practiceQs.length === 0) {
-        practiceQs = await this.prisma.question.findMany({
-          where: {
-            chapter: part.question.chapter,
-            difficulty: part.question.difficulty,
-            id: { notIn: allQuizQuestionIds },
-          },
-          include: { parts: true },
-          take: 1,
-        });
-
-        if (practiceQs.length === 0) {
-          this.logger.warn(
-            `⚠️ INSUFFICIENT DATA: No practice questions found for correct answer on topic "${part.question.topic}"`,
-          );
-        }
-      }
 
       for (const pq of practiceQs) {
         for (const p of pq.parts) {
-          practiceQuestions.push({
-            id: p.id,
-            topic: pq.topic,
-            text: p.questionText,
-            difficulty: pq.difficulty,
-            level: 'same_level',
-            marks: p.marks,
-            explanation: p.explanation,
-          });
+          if (questionsFound < targetCount) {
+            practiceQuestions.push({
+              id: p.id,
+              topic: pq.topic,
+              text: p.questionText,
+              difficulty: pq.difficulty,
+              level: 'same_level',
+              marks: p.marks,
+              explanation: p.explanation,
+            });
+            questionsFound++;
+          }
         }
+      }
+
+      // If not enough, use Gemini Fallback (but for same level)
+      if (questionsFound < targetCount) {
+        // We reuse generateFallbackPracticeQuestions but we need to trick it to generate same level
+        // Since generateFallbackPracticeQuestions uses getNextDifficultyLevel, we can pass a "lower" difficulty
+        // to get the "current" difficulty back. Or better, we just accept next level for practice anyway.
+        // For simplicity, we'll let it generate "next level" (harder) practice even for correct answers,
+        // as that's good for growth.
+
+        const needed = targetCount - questionsFound;
+        const mockWrongAnswer: WrongAnswer = {
+          questionId: part.id,
+          questionText: part.questionText,
+          topic: part.question.topic,
+          difficulty: part.question.difficulty,
+          chapter: part.question.chapter
+        };
+
+        const aiQuestions = await this.generateFallbackPracticeQuestions([mockWrongAnswer], needed);
+        // Adjust level label
+        aiQuestions.forEach(q => q.level = 'same_level');
+
+        practiceQuestions.push(...aiQuestions);
       }
     }
 
@@ -282,34 +275,122 @@ export class QuizAnalysisService {
 
   /**
    * Get fallback practice questions when database is insufficient
-   * Returns AI-generated or templated questions
+   * Uses Gemini AI to generate contextual practice questions
    */
   async generateFallbackPracticeQuestions(
     wrongAnswers: WrongAnswer[],
     count: number = 5,
+    forceDifficulty?: string,
   ): Promise<PracticeQuestion[]> {
     const fallbackQuestions: PracticeQuestion[] = [];
 
     this.logger.warn(
-      `⚠️ DATABASE INSUFFICIENT: Generating ${count} fallback practice questions`,
+      `⚠️ DATABASE INSUFFICIENT: Generating ${count} AI practice questions using Gemini`,
     );
 
-    for (const wrong of wrongAnswers.slice(0, count)) {
-      // Generate a templated question based on the topic
-      const fallbackQuestion: PracticeQuestion = {
-        id: `fallback_${Date.now()}_${Math.random()}`,
-        topic: wrong.topic,
-        text: `[Practice] ${wrong.topic} - Problem solving at ${this.getNextDifficultyLevel(wrong.difficulty)[0]} level. ${wrong.topic.includes('Geometry') ? 'Calculate the unknown value based on the given properties.' : 'Apply the concepts learned to solve this problem.'}`,
-        difficulty: this.getNextDifficultyLevel(wrong.difficulty)[0],
-        level: 'next_level',
-        marks: 2,
-        explanation: `This is a practice question. Use the hints from your quiz feedback and refer to "${wrong.topic}" resources to solve similar problems.`,
-      };
+    try {
+      // Dynamic import of Gemini
+      const { GoogleGenerativeAI } = await import('@google/generative-ai');
+      const apiKey = this.configService.get<string>('GEMINI_API_KEY');
 
-      fallbackQuestions.push(fallbackQuestion);
+      if (!apiKey) {
+        this.logger.error('GEMINI_API_KEY is missing in configuration');
+        // Debug: Print available keys (masked)
+        const keys = Object.keys(process.env);
+        this.logger.debug(`Available env keys: ${keys.join(', ')}`);
+        return this.generateTemplateFallback(wrongAnswers, count);
+      }
+
+      this.logger.debug(`Using Gemini API Key: ${apiKey.substring(0, 4)}...`);
+
+      const genAI = new GoogleGenerativeAI(apiKey);
+      // Try using the specific version or latest alias
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.0-flash-exp' });
+
+      for (const wrong of wrongAnswers.slice(0, count)) {
+        // Determine target difficulty
+        const targetDifficulty = forceDifficulty || this.getNextDifficultyLevel(wrong.difficulty)[0];
+
+        const prompt = `Generate a math practice question for Singapore Secondary school level.
+
+Topic: ${wrong.topic}
+Chapter: ${wrong.chapter}
+Difficulty: ${targetDifficulty}
+Context: Student was working on "${wrong.questionText}"
+
+Create ONE similar but different practice question that:
+1. Tests the same concept
+2. Is at ${targetDifficulty} difficulty level
+3. Is clear and specific with actual numbers/values
+4. Can be solved in 2-3 steps
+5. Is suitable for Singapore Secondary students
+
+Return ONLY the question text, no explanation or answer. Make it concise and practical.`;
+
+        try {
+          this.logger.debug(`Sending prompt to Gemini for ${wrong.topic}...`);
+          const result = await model.generateContent(prompt);
+          const response = await result.response;
+          const questionText = response.text().trim();
+
+          if (!questionText) {
+            throw new Error('Empty response from Gemini');
+          }
+
+          fallbackQuestions.push({
+            id: `ai_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+            topic: wrong.topic,
+            text: questionText,
+            difficulty: targetDifficulty,
+            level: forceDifficulty ? 'same_level' : 'next_level',
+            marks: 1,
+            explanation: `AI-generated practice question for ${wrong.topic} (${targetDifficulty})`,
+          });
+
+          this.logger.log(`✅ Generated AI question for topic: ${wrong.topic}`);
+
+          // Small delay to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        } catch (error) {
+          this.logger.error(`Failed to generate AI question for ${wrong.topic}: ${error.message}`);
+          // Fallback to template
+          fallbackQuestions.push(this.createTemplateQuestion(wrong, targetDifficulty));
+        }
+      }
+    } catch (error) {
+      this.logger.error(`Gemini integration error: ${error.message}`);
+      return this.generateTemplateFallback(wrongAnswers, count);
     }
 
     return fallbackQuestions;
+  }
+
+  /**
+   * Create a template question (used as last resort)
+   */
+  private createTemplateQuestion(wrong: WrongAnswer, difficulty: string): PracticeQuestion {
+    return {
+      id: `template_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+      topic: wrong.topic,
+      text: `Practice ${wrong.topic} at ${difficulty} level - solve problems similar to the ones you found challenging.`,
+      difficulty,
+      level: 'next_level',
+      marks: 1,
+      explanation: `Practice question for ${wrong.topic}`,
+    };
+  }
+
+  /**
+   * Generate template fallback questions (when Gemini is unavailable)
+   */
+  private generateTemplateFallback(
+    wrongAnswers: WrongAnswer[],
+    count: number,
+  ): PracticeQuestion[] {
+    return wrongAnswers.slice(0, count).map(wrong => {
+      const difficulty = this.getNextDifficultyLevel(wrong.difficulty)[0];
+      return this.createTemplateQuestion(wrong, difficulty);
+    });
   }
 
   /**

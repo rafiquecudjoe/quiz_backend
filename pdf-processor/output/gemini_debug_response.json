@@ -1,0 +1,131 @@
+```json
+{
+  "pages": [
+    {
+      "page_number": 1,
+      "text": "14 The diagram shows a rhombus ABCD.\nAngle DAB is 36°.\n36°\nA\n(a) Stating your reasons clearly, find\n(i) angle BCD,\nB\nC\nD\nAnswer\nangle BCD =\nΟ\n[1]\n(ii) angle DBC.\nAnswer angle DBC =\n..........[2]\n(b) Sherry claims that the rhombus is considered a parallelogram.\nDo you agree? Explain your answer.\n~END OF PAPER~\nwww.KiasuExamPaper.com\n239",
+      "quiz": {
+        "questions": [
+          {
+            "number": "14",
+            "question": "The diagram shows a rhombus ABCD. Angle DAB is 36°.",
+            "parts": [
+              {
+                "part": "(a)(i)",
+                "question_text": "Stating your reasons clearly, find angle BCD.",
+                "marks": 1,
+                "options": [
+                  {
+                    "label": "A",
+                    "text": "36°",
+                    "correct_option": "A"
+                  },
+                  {
+                    "label": "B",
+                    "text": "72°"
+                  },
+                  {
+                    "label": "C",
+                    "text": "144°"
+                  },
+                  {
+                    "label": "D",
+                    "text": "108°"
+                  }
+                ],
+                "correct_option": "A",
+                "sample_answer": "angle BCD = 36° (Opposite angles in a rhombus are equal)",
+                "explanation": "In a rhombus, opposite angles are equal. Therefore, angle BCD is equal to angle DAB, which is 36°.",
+                "hints": [
+                  "Recall the properties of a rhombus.",
+                  "Opposite angles of a rhombus are equal."
+                ]
+              },
+              {
+                "part": "(a)(ii)",
+                "question_text": "Stating your reasons clearly, find angle DBC. Given angle DAB = 36° and ABCD is a rhombus.",
+                "marks": 2,
+                "options": [
+                  {
+                    "label": "A",
+                    "text": "36°"
+                  },
+                  {
+                    "label": "B",
+                    "text": "72°",
+                    "correct_option": "B"
+                  },
+                  {
+                    "label": "C",
+                    "text": "54°"
+                  },
+                  {
+                    "label": "D",
+                    "text": "108°"
+                  }
+                ],
+                "correct_option": "B",
+                "sample_answer": "angle ABC = 180° - 36° = 144° (Interior angles between parallel lines)\nangle DBC = 144° / 2 = 72° (Rhombus diagonals bisect the angles)",
+                "explanation": "First, find angle ABC using the fact that adjacent angles in a rhombus are supplementary. Then, since the diagonal BD bisects angle ABC, divide angle ABC by 2 to find angle DBC.",
+                "hints": [
+                  "Adjacent angles of a rhombus are supplementary.",
+                  "Diagonals of a rhombus bisect the angles."
+                ]
+              },
+              {
+                "part": "(b)",
+                "question_text": "Sherry claims that the rhombus is considered a parallelogram. Do you agree? Explain your answer.",
+                "marks": 2,
+                "options": [
+                  {
+                    "label": "A",
+                    "text": "Yes, because a rhombus has all the properties of a parallelogram, such as opposite sides being parallel.",
+                    "correct_option": "A"
+                  },
+                  {
+                    "label": "B",
+                    "text": "No, because a rhombus has all sides equal, which is not always the case for parallelograms."
+                  },
+                  {
+                    "label": "C",
+                    "text": "Yes, because all parallelograms have equal sides like a rhombus."
+                  },
+                  {
+                    "label": "D",
+                    "text": "No, because a rhombus has no right angles."
+                  }
+                ],
+                "correct_option": "A",
+                "sample_answer": "Yes, I agree. A rhombus has all the properties of a parallelogram: opposite sides are parallel, opposite angles are equal, and diagonals bisect each other. A rhombus is a special type of parallelogram where all sides are equal.",
+                "explanation": "A rhombus meets the definition of a parallelogram (opposite sides parallel) in addition to having all sides equal. Thus, all rhombuses are parallelograms.",
+                "hints": [
+                  "Consider the properties of parallelograms and rhombuses.",
+                  "A rhombus has opposite sides parallel."
+                ]
+              }
+            ],
+            "enrichment": {
+              "topic": "Geometry",
+              "chapter": "Chapter 8 – Polygons and Geometrical Constructions",
+              "difficulty": "medium",
+              "question_level": "Grade 2",
+              "keywords": [
+                "rhombus",
+                "parallelogram",
+                "angles",
+                "geometry"
+              ],
+              "learning_outcomes": [
+                "Understand properties of rhombus",
+                "Understand properties of parallelogram",
+                "Calculate angles in a rhombus"
+              ],
+              "time_estimate_minutes": 8
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
+```

@@ -28,7 +28,7 @@ export class PdfController {
   constructor(
     private readonly pdfService: PdfService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   /**
    * Upload and process PDF
@@ -96,21 +96,29 @@ export class PdfController {
    *   - minConfidence: Minimum diagram confidence (default from config)
    */
   @Get('jobs/:jobId/questions')
-  async getQuizQuestions(
+  async getJobQuestions(
     @Param('jobId') jobId: string,
     @Query('minConfidence') minConfidence?: string,
   ) {
     const minConf = minConfidence ? parseFloat(minConfidence) : undefined;
-    const questions = await this.pdfService.getQuizQuestions(jobId, minConf);
-
+    // Admin endpoint: Include excluded questions so they can be managed
+    const questions = await this.pdfService.getQuizQuestions(jobId, minConf, true);
     if (!questions) {
-      throw new HttpException(
-        'Job not found or not completed',
-        HttpStatus.NOT_FOUND,
-      );
+      throw new HttpException('Job not found or not completed', HttpStatus.NOT_FOUND);
     }
-
     return questions;
+  }
+
+  /**
+   * Toggle question exclusion
+   * POST /pdf/questions/:id/exclude
+   */
+  @Post('questions/:id/exclude')
+  async toggleQuestionExclusion(
+    @Param('id') id: string,
+    @Body('exclude') exclude: boolean,
+  ) {
+    return this.pdfService.toggleQuestionExclusion(id, exclude);
   }
 
   /**

@@ -33,6 +33,7 @@ interface EnrichedQuestion {
   chapter: string;
   subject?: string;
   school_level: string;
+  question_level?: string;
   difficulty: string;
   question_type: string;
   time_estimate_minutes?: number;
@@ -105,17 +106,17 @@ export class PdfService {
     const pdfHash = await this.generatePdfHash(file.path);
 
     // Check for duplicate by hash
-    const existingJob = await this.prisma.processingJob.findUnique({
+    const existingJob = await this.prisma.processingJob.findFirst({
       where: { pdfHash },
     });
     if (existingJob) {
       this.logger.warn(`Duplicate PDF detected. Skipping processing. JobId: ${existingJob.jobId}`);
-      return {
-        jobId: existingJob.jobId,
-        filename: existingJob.filename,
-        status: existingJob.status,
-        message: 'PDF already processed. Returning existing job.',
-      };
+      // return {
+      //   jobId: existingJob.jobId,
+      //   filename: existingJob.filename,
+      //   status: existingJob.status,
+      //   message: 'PDF already processed. Returning existing job.',
+      // };
     }
 
     const jobId = uuidv4();
@@ -388,6 +389,7 @@ export class PdfService {
           chapter: enrichedQ.chapter || 'General', // Provide default value for null chapter
           subject: enrichedQ.subject || 'Mathematics',
           schoolLevel: enrichedQ.school_level,
+          questionLevel: enrichedQ.question_level, // Save question level
           difficulty: enrichedQ.difficulty,
           questionType: enrichedQ.question_type || 'open_ended', // Provide default value for null questionType
           timeEstimateMinutes: enrichedQ.time_estimate_minutes,
@@ -423,8 +425,8 @@ export class PdfService {
       }
 
       for (const part of enrichedQ.parts) {
-        // Use part marks if provided, otherwise use difficulty-based marks
-        const partMarks = part.marks || defaultMarks;
+        // All questions worth 1 mark
+        const partMarks = 1;
 
         await this.prisma.questionPart.create({
           data: {
@@ -522,12 +524,23 @@ export class PdfService {
   }
 
   /**
+   * Toggle question exclusion status
+   */
+  async toggleQuestionExclusion(partId: string, exclude: boolean): Promise<any> {
+    return this.prisma.questionPart.update({
+      where: { id: partId },
+      data: { isExcluded: exclude },
+    });
+  }
+
+  /**
    * Get all questions for a job (transformed for frontend)
    * This replaces frontend's transformQuestions() function
    */
   async getQuizQuestions(
     jobId: string,
     minConfidence?: number,
+    includeExcluded: boolean = false,
   ): Promise<any> {
     const job = await this.prisma.processingJob.findUnique({
       where: { jobId },
@@ -564,12 +577,17 @@ export class PdfService {
 
       // Each part becomes a separate quiz question
       for (const part of q.parts) {
+        // Skip excluded questions unless explicitly included
+        if (!includeExcluded && part.isExcluded) {
+          continue;
+        }
+
         transformedQuestions.push({
           id: part.id,
           number: questionNumber++,
           originalQuestionNum: q.questionNum,
           text: part.questionText,
-          context: q.questionText && q.questionText !== part.questionText ? q.questionText : undefined,
+          context: q.questionText && q.questionText !== part.questionText && q.questionText !== 'Question text not available' ? q.questionText : undefined,
           marks: part.marks, // Marks per part (1 for easy, 2 for medium, 3 for hard)
           sampleAnswer: part.sampleAnswer,
           explanation: part.explanation,
@@ -577,6 +595,7 @@ export class PdfService {
           options: part.options || [],
           correctOption: part.correctOption,
           hasImage: filteredDiagrams.length > 0,
+          isExcluded: part.isExcluded,
           diagrams: filteredDiagrams.map((d) => ({
             url: d.minioUrl,
             fileName: d.fileName,
@@ -587,6 +606,7 @@ export class PdfService {
           chapter: q.chapter,
           topic: q.topic,
           schoolLevel: q.schoolLevel,
+          questionLevel: q.questionLevel,
           difficulty: q.difficulty, // easy = 1 mark, medium = 2 marks, hard = 3 marks
           questionType: q.questionType,
           learningOutcomes: q.learningOutcomes,
@@ -613,7 +633,8 @@ export class PdfService {
     difficulty?: string,
     topic?: string,
   ): Promise<any> {
-    const result = await this.getQuizQuestions(jobId, minConfidence);
+    // Never include excluded questions in random quiz
+    const result = await this.getQuizQuestions(jobId, minConfidence, false);
 
     if (!result) {
       return null;
@@ -691,12 +712,25 @@ export class PdfService {
         const correctOptionIndex = part.correctOption;
 
         const optionsArray = (part.options as { label: string; text: string }[]) || [];
-        const correctOption = optionsArray[correctOptionIndex]?.label;
+        // Handle case where correctOption might be 0 (falsy) but valid
+        const correctOptionObj = correctOptionIndex !== null && correctOptionIndex !== undefined
+          ? optionsArray[correctOptionIndex]
+          : null;
+
+        const correctOption = correctOptionObj?.label;
         const userAnswer = answers[questionId];
 
-        const isCorrect = correctOption === userAnswer;
+        // Normalize for comparison
+        const normalizedCorrect = correctOption?.trim().toLowerCase();
+        const normalizedUser = userAnswer?.trim().toLowerCase();
+
+        const isCorrect = !!(normalizedCorrect && normalizedUser && normalizedCorrect === normalizedUser);
+
         if (isCorrect) {
           score += part.marks;
+          this.logger.debug(`Correct answer for ${questionId}. Marks: ${part.marks}. New Score: ${score}`);
+        } else {
+          this.logger.debug(`Wrong answer for ${questionId}. User: ${normalizedUser}, Correct: ${normalizedCorrect}`);
         }
 
         results.push({

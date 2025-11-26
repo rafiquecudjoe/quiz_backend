@@ -46,7 +46,7 @@ export class EmailService {
       }
 
       const fromEmail = this.configService.get('RESEND_FROM_EMAIL') || 'noreply@exams.example.com';
-      
+
       const percentage = Math.round(quizData.percentage);
       const performance = this.getPerformanceMessage(percentage);
 
@@ -213,7 +213,7 @@ export class EmailService {
                 <div class="score-bar">
                   <div class="score-bar-fill"></div>
                 </div>
-                <div class="badge">${score}/${totalMarks} Marks</div>
+                <div class="badge">${correctAnswers}/${correctAnswers + wrongAnswers} Questions Correct</div>
               </div>
               
               <div class="stats">
@@ -252,7 +252,7 @@ export class EmailService {
             
             <div class="footer">
               <p>This is an automated email. Please do not reply to this message.</p>
-              <p>&copy; 2025 Maths Exams. All rights reserved.</p>
+              <p>&copy; 2025 Mathlobby All rights reserved.</p>
             </div>
           </div>
         </body>
@@ -301,7 +301,7 @@ export class EmailService {
             
             <div class="footer">
               <p>This is an automated email. Please do not reply to this message.</p>
-              <p>&copy; 2025 Maths Exams. All rights reserved.</p>
+              <p>&copy; 2025 Mathlobby All rights reserved.</p>
             </div>
           </div>
         </body>

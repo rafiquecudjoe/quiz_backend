@@ -73,7 +73,7 @@ export class PdfGeneratorService {
           <div style="font-size: 10px; width: 100%; text-align: center; color: #ccc; font-family: Helvetica, sans-serif;">
             Page <span class="pageNumber"></span> of <span class="totalPages"></span> 
             <br/> 
-            © 2025 Maths Exams. All rights reserved.
+            © 2025 Mathlobby All rights reserved.
           </div>
         `,
       });
@@ -103,7 +103,7 @@ export class PdfGeneratorService {
     const percentage = Math.round((score / totalMarks) * 100);
     const correctAnswers = results.filter((r) => r.isCorrect).length;
     const wrongAnswers = results.length - correctAnswers;
-    
+
     const date = new Date().toLocaleDateString('en-US', {
       year: 'numeric',
       month: 'long',
@@ -114,7 +114,7 @@ export class PdfGeneratorService {
     let practiceSectionHtml = '';
     if (practiceQuestions.length > 0) {
       const grouped = this.groupBy(practiceQuestions, 'topic');
-      
+
       practiceSectionHtml += `
         <div class="section-title">Practice Questions</div>
         <p class="subtitle">These questions are tailored to help you improve on topics you found challenging.</p>
@@ -126,15 +126,14 @@ export class PdfGeneratorService {
             <div class="topic-header">Topic: ${topic}</div>
             <div class="questions-list">
               ${questions
-                .map(
-                  (q, i) => `
+            .map(
+              (q, i) => `
                   <div class="question-item">
                     <div class="question-text"><strong>${i + 1}.</strong> ${q.text}</div>
-                    <div class="marks">(${q.marks} marks)</div>
                   </div>
                 `,
-                )
-                .join('')}
+            )
+            .join('')}
             </div>
           </div>
         `;
@@ -272,7 +271,7 @@ export class PdfGeneratorService {
         <div class="score-section">
           <div class="section-title" style="text-decoration:none; border-bottom: 2px solid #333; display:inline-block; margin-bottom:15px;">Your Performance</div>
           <div class="percentage">${percentage}%</div>
-          <div class="score-text">Score: ${score}/${totalMarks} marks</div>
+          <div class="score-text">Score: ${correctAnswers}/${results.length} questions correct</div>
 
           <div class="stats-grid">
             <div class="stat-box box-correct">
