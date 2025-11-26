@@ -40,17 +40,23 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api/docs', app, document);
 
-  const port = configService.get('PORT') || 3000;
-  await app.listen(port);
+  const port = configService.get('PORT') || 3005;
+
+  // Bind to 0.0.0.0 for Docker (essential for container networking)
+  await app.listen(port, '0.0.0.0');
 
   console.log('\n' + '='.repeat(70));
   console.log('🚀 NestJS PDF Processor Backend');
   console.log('='.repeat(70));
-  console.log(`📍 Server: http://localhost:${port}`);
-  console.log(`📖 API Docs: http://localhost:${port}/api/docs`);
+  console.log(`📍 Server: http://0.0.0.0:${port}`);
+  console.log(`📖 API Docs: http://0.0.0.0:${port}/api/docs`);
   console.log(`🗄️  Database: MongoDB`);
+  console.log(`🐍 Python: ${configService.get('PYTHON_VENV_PATH')}`);
   console.log('='.repeat(70) + '\n');
 }
 
-bootstrap();
+bootstrap().catch((error) => {
+  console.error('❌ Failed to start application:', error);
+  process.exit(1);
+});
 
