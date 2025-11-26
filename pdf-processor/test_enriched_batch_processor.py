@@ -8,6 +8,10 @@ Outputs questions in adaptive learning platform format with:
 - All metadata for adaptive learning
 """
 
+import warnings
+# Suppress Python version warning from Google API
+warnings.filterwarnings('ignore', category=FutureWarning, module='google.api_core')
+
 import sys
 import time
 import os
