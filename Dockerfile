@@ -69,7 +69,7 @@ ENV PYTHON_VENV_PATH=/app/venv/bin/python
 ENV PYTHON_SCRIPT_PATH=/app/pdf-processor/test_enriched_batch_processor.py
 
 # Expose port
-EXPOSE 3000
+EXPOSE 3005
 
 # Start application
 CMD ["node", "dist/main"]
