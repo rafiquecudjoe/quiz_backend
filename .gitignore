@@ -47,3 +47,9 @@ lerna-debug.log*
 # Prisma
 prisma/migrations
 
+
+# Python (pdf-processor)
+venv/
+__pycache__/
+*.pyc
+pdf-processor/output/
