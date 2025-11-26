@@ -66,14 +66,28 @@ CRITICAL OUTPUT FORMAT REQUIREMENTS:
 3. Dependent parts (that use "Hence", "Therefore", etc.) MUST include context from previous parts directly in their question_text
 4. PRESERVE FORMATTING: 
    - For number lists, add commas and spaces: "3, √3, -4, 1/√4, 1, 3" (not "3√3-4 1 1/√4")
-   - For simultaneous equations: MUST separate with line breaks (\n) - each equation on its own line
-   - Format: "Solve the simultaneous equations:\n  2x + 5y = 8\n  x + 3y = 6"
+   - For simultaneous equations: MUST separate with line breaks (\\n) - each equation on its own line
+   - Format: "Solve the simultaneous equations:\\n  2x + 5y = 8\\n  x + 3y = 6"
    - NEVER put both equations on same line: "2x + 5y = 8 x + 3y = 6" ❌
 5. Generate MULTIPLE-CHOICE OPTIONS for *every* question part (if applicable, or create plausible options if the question is open-ended):
    - Include exactly 4 options labeled A, B, C, D.
    - Ensure one option is correct and mark it as "correct_option" (e.g., "A", "B").
    - Provide plausible distractors for the incorrect options. For open-ended questions, generate options that represent common correct and incorrect answers.
 6. This format will be used directly in database and frontend - NO further processing needed
+
+DIAGRAM DETECTION INSTRUCTIONS (CRITICAL FOR MULTIPLE DIAGRAMS):
+For EACH question that has a diagram, graph, chart, table, or visual element:
+1. Identify the EXACT location of the diagram on the page
+2. Provide precise bounding box coordinates in the "enrichment" object as "diagram_bbox"
+3. Format: {"x": left_pixel, "y": top_pixel, "width": width_pixels, "height": height_pixels}
+4. If a page has MULTIPLE diagrams for different questions, provide SEPARATE bounding boxes for EACH question
+5. Set "requires_diagram": true for questions that reference visual elements
+6. Include a brief "diagram_description" describing what the diagram shows
+
+Example for a page with 3 diagrams:
+- Question 1 has a bar chart at top: diagram_bbox: {"x": 50, "y": 100, "width": 400, "height": 300}
+- Question 2 has a triangle diagram in middle: diagram_bbox: {"x": 50, "y": 500, "width": 350, "height": 250}
+- Question 3 has a coordinate grid at bottom: diagram_bbox: {"x": 50, "y": 900, "width": 400, "height": 400}
 
 CHAPTER DETECTION INSTRUCTIONS:
 If the exam paper is identified as "Secondary 2 (Normal Academic - Grade 2)" or similar, you MUST detect the specific chapter from the following list and include it in the "enrichment" object as "chapter".
@@ -103,7 +117,7 @@ Chapter 6 – Algebraic Fractions
 Chapter 7 – Direct and Inverse Proportion
 Chapter 8 – Polygons and Geometrical Constructions
 Chapter 9 – Congruence and Similarity
-Chapter 10 – Pythagoras’ Theorem
+Chapter 10 – Pythagoras' Theorem
 Chapter 11 – Volume and Surface Area of Pyramids, Cones and Spheres
 Chapter 12 – Probability of Single Events
 Chapter 13 – Statistical Diagrams
@@ -163,7 +177,10 @@ Return JSON with this EXACT structure:
               "question_level": "Grade 2",
               "keywords": ["linear equations", "algebra"],
               "learning_outcomes": ["Solve linear equations", "Understand substitution"],
-              "time_estimate_minutes": 5
+              "time_estimate_minutes": 5,
+              "requires_diagram": true,
+              "diagram_bbox": {"x": 50, "y": 100, "width": 400, "height": 300},
+              "diagram_description": "Bar chart showing frequency distribution"
             }
           }
         ]
