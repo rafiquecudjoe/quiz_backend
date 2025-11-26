@@ -139,7 +139,7 @@ def enriched_batch_process_pdf(pdf_path: str, batch_size: int = 5):
                     )
                     
                     if needs_diagram and page_snapshot.exists():
-                        # Run hybrid AI detection
+                        # Tier 1: Run hybrid AI detection (best accuracy)
                         try:
                             from detect_diagrams_hybrid import detect_diagrams_hybrid
                             detected = detect_diagrams_hybrid(str(page_snapshot))
@@ -152,7 +152,7 @@ def enriched_batch_process_pdf(pdf_path: str, batch_size: int = 5):
                                 # Filter out low confidence detections to prefer fallback
                                 high_conf_detected = [d for d in detected if d.get('confidence', 0) > 85]
                                 
-                                for idx, diag_info in enumerate(high_conf_detected[:1]):  # Take best high-confidence detection
+                                for idx, diag_info in enumerate(high_conf_detected[:3]):  # Take up to 3 high-confidence detections
                                     x1, y1, x2, y2 = diag_info['bbox']
                                     padding = 40
                                     x1 = max(0, x1 - padding)
@@ -161,7 +161,9 @@ def enriched_batch_process_pdf(pdf_path: str, batch_size: int = 5):
                                     y2 = min(page_img.height, y2 + padding)
                                     
                                     crop = page_img.crop((x1, y1, x2, y2))
-                                    diagram_name = f'page_{actual_page_num}_diagram_ai.png'
+                                    # Use index in filename to support multiple diagrams
+                                    suffix = f"_{idx+1}" if idx > 0 else ""
+                                    diagram_name = f'page_{actual_page_num}_diagram_ai{suffix}.png'
                                     diagram_path = output_dir / diagram_name
                                     crop.save(diagram_path, optimize=True)
                                     
@@ -180,15 +182,57 @@ def enriched_batch_process_pdf(pdf_path: str, batch_size: int = 5):
                                     h = y2 - y1
                                     print(f"      ✓ AI detected diagram: {w}x{h} px (confidence: {confidence:.1f}%)")
                         except Exception as e:
-                            print(f"      ⚠ AI detection failed: {e}, checking for existing diagrams...")
-                            # Fallback to existing detected diagrams
-                            for diagram_file in output_dir.glob(f'page_{actual_page_num}_diagram_*.png'):
-                                diagrams.append({
-                                    'local_path': f'output/{diagram_file.name}',
-                                    'filename': diagram_file.name,
-                                    'page_number': actual_page_num,
-                                    'file_size': os.path.getsize(diagram_file)
-                                })
+                            print(f"      ⚠ Hybrid AI detection failed: {e}")
+                        
+                        # Tier 2: Try YOLOv8 if hybrid detection found nothing
+                        if not diagrams and needs_diagram:
+                            try:
+                                print(f"      → Trying YOLOv8 fallback...")
+                                from detect_diagrams_yolo import detect_diagrams_yolo
+                                yolo_detected = detect_diagrams_yolo(str(page_snapshot))
+                                
+                                if yolo_detected:
+                                    from PIL import Image
+                                    page_img = Image.open(page_snapshot)
+                                    
+                                    for idx, diag_info in enumerate(yolo_detected[:3]):  # Take up to 3 detections
+                                        x1, y1, x2, y2 = diag_info['bbox']
+                                        padding = 40
+                                        x1 = max(0, x1 - padding)
+                                        y1 = max(0, y1 - padding)
+                                        x2 = min(page_img.width, x2 + padding)
+                                        y2 = min(page_img.height, y2 + padding)
+                                        
+                                        crop = page_img.crop((x1, y1, x2, y2))
+                                        # Use index in filename to support multiple diagrams
+                                        suffix = f"_{idx+1}" if idx > 0 else ""
+                                        diagram_name = f'page_{actual_page_num}_diagram_yolo{suffix}.png'
+                                        diagram_path = output_dir / diagram_name
+                                        crop.save(diagram_path, optimize=True)
+                                        
+                                        confidence = diag_info.get('confidence', 0)
+                                        diagrams.append({
+                                            'local_path': f'output/{diagram_name}',
+                                            'filename': diagram_name,
+                                            'page_number': actual_page_num,
+                                            'file_size': os.path.getsize(diagram_path),
+                                            'source': 'yolov8_detection',
+                                            'confidence': confidence,
+                                            'area': diag_info.get('area')
+                                        })
+                                        w = x2 - x1
+                                        h = y2 - y1
+                                        print(f"      ✓ YOLOv8 detected diagram: {w}x{h} px (confidence: {confidence:.1f}%)")
+                            except Exception as e:
+                                print(f"      ⚠ YOLOv8 detection failed: {e}")
+                                # Tier 3: Final fallback to existing detected diagrams
+                                for diagram_file in output_dir.glob(f'page_{actual_page_num}_diagram_*.png'):
+                                    diagrams.append({
+                                        'local_path': f'output/{diagram_file.name}',
+                                        'filename': diagram_file.name,
+                                        'page_number': actual_page_num,
+                                        'file_size': os.path.getsize(diagram_file)
+                                    })
                     
                     # If Gemini provided diagram_bbox, use it to create a precise crop
                     diagram_bbox = enrichment.get('diagram_bbox')

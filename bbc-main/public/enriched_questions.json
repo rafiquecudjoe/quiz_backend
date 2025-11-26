@@ -1,0 +1,1625 @@
+{
+  "document_info": {
+    "filename": "cb39e5ff-971a-49d2-b488-e34f3aea9cd3.pdf",
+    "total_pages": 14,
+    "api_calls_used": 14,
+    "total_questions": 15,
+    "processing_complete": true
+  },
+  "enriched_questions": [
+    {
+      "page_number": 2,
+      "question_num": "1",
+      "question_text": null,
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Simplify 4mn²/9 ÷ 14m²/3.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "2n²/21",
+              "correct_option": "A"
+            },
+            {
+              "label": "B",
+              "text": "21n²/2",
+              "correct_option": "A"
+            },
+            {
+              "label": "C",
+              "text": "7n²/6",
+              "correct_option": "A"
+            },
+            {
+              "label": "D",
+              "text": "6n²/7",
+              "correct_option": "A"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "(4mn²/9) ÷ (14m²/3) = (4mn²/9) * (3/14m²) = 12mn²/126m² = 2n²/21",
+          "explanation": "To divide fractions, multiply by the reciprocal. Simplify by cancelling common factors.",
+          "hints": [
+            "Remember to invert the second fraction and multiply.",
+            "Cancel common factors such as 'm²' and numbers."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "Expand and simplify 2(x+3)-3(x+4).",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "-x - 6"
+            },
+            {
+              "label": "B",
+              "text": "5x + 18"
+            },
+            {
+              "label": "C",
+              "text": "-x + 18"
+            },
+            {
+              "label": "D",
+              "text": "5x - 6",
+              "correct_option": "A"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "2(x+3) - 3(x+4) = 2x + 6 - 3x - 12 = -x - 6",
+          "explanation": "Expand the brackets and then collect like terms.",
+          "hints": [
+            "Multiply each term inside the bracket by the term outside.",
+            "Pay attention to the signs when expanding the brackets."
+          ]
+        }
+      ],
+      "diagrams": [],
+      "topic": "Algebraic Expressions",
+      "chapter": "Chapter 4 – Expansion and Factorisation of Algebraic Expressions",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 5,
+      "learning_outcomes": [
+        "Expand algebraic expressions",
+        "Simplify algebraic expressions"
+      ],
+      "keywords": [
+        "algebra",
+        "simplification",
+        "expansion",
+        "factorisation"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 4,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 2,
+      "question_num": "2",
+      "question_text": null,
+      "parts": [
+        {
+          "part": null,
+          "question_text": "Simplify (3q²-12q)/(q²-16).",
+          "marks": 3,
+          "options": [
+            {
+              "label": "A",
+              "text": "3q/(q+4)",
+              "correct_option": "A"
+            },
+            {
+              "label": "B",
+              "text": "(3q-12)/(q-4)"
+            },
+            {
+              "label": "C",
+              "text": "(3q+12)/(q+4)"
+            },
+            {
+              "label": "D",
+              "text": "3q/(q-4)"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "(3q² - 12q)/(q² - 16) = 3q(q - 4)/((q - 4)(q + 4)) = 3q/(q + 4)",
+          "explanation": "Factorise both the numerator and denominator and cancel any common factors.",
+          "hints": [
+            "Factorise the numerator by taking out the common factor.",
+            "Factorise the denominator using the difference of squares."
+          ]
+        }
+      ],
+      "diagrams": [],
+      "topic": "Algebraic Fractions",
+      "chapter": "Chapter 6 – Algebraic Fractions",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "hard",
+      "question_type": null,
+      "time_estimate_minutes": 7,
+      "learning_outcomes": [
+        "Simplify algebraic fractions",
+        "Factorise quadratic expressions"
+      ],
+      "keywords": [
+        "algebra",
+        "fraction",
+        "simplification",
+        "factorisation"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 3,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 3,
+      "question_num": "3",
+      "question_text": "In the diagram, quadrilateral ABCD is similar to quadrilateral PQRS. Find:",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "x",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "7.5°",
+              "correct_option": true
+            },
+            {
+              "label": "B",
+              "text": "30°"
+            },
+            {
+              "label": "C",
+              "text": "132°"
+            },
+            {
+              "label": "D",
+              "text": "56°"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "∠BAD corresponds to ∠PSR.  Since ∠PSR = 30°, ∠BAD = x = 30/4 = 7.5°",
+          "explanation": "Corresponding angles in similar quadrilaterals are equal. Find the corresponding angle in the other quadrilateral and equate them. Since sides are in the ratio 12:18 = 4:6. Therefore, angles must be divided by a corresponding ratio of 4.",
+          "hints": [
+            "Identify the corresponding angles in the similar quadrilaterals.",
+            "Use the property that corresponding angles of similar figures are equal."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "y",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "4",
+              "correct_option": false
+            },
+            {
+              "label": "B",
+              "text": "4.5",
+              "correct_option": true
+            },
+            {
+              "label": "C",
+              "text": "6",
+              "correct_option": false
+            },
+            {
+              "label": "D",
+              "text": "9",
+              "correct_option": false
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "Since the quadrilaterals are similar, corresponding sides are in proportion.  AB/PS = AD/PQ => 3/y = 12/18 => y = (3*18)/12 = 4.5 cm",
+          "explanation": "Set up a proportion using corresponding sides of the similar quadrilaterals and solve for y.",
+          "hints": [
+            "Set up a proportion relating corresponding sides of similar figures.",
+            "Solve the proportion for the unknown side length."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_3_diagram_ai.png",
+          "filename": "page_3_diagram_ai.png",
+          "page_number": 3,
+          "file_size": 57658,
+          "source": "hybrid_ai_detection",
+          "confidence": 91.9,
+          "area": 164298,
+          "density": 7.599
+        }
+      ],
+      "topic": "Geometry - Similarity and Congruence",
+      "chapter": "Chapter 9 – Congruence and Similarity",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 8,
+      "learning_outcomes": [
+        "Apply properties of similar figures to find unknown angles and sides."
+      ],
+      "keywords": [
+        "similarity",
+        "quadrilaterals",
+        "angles",
+        "sides",
+        "proportion"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 3,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 3,
+      "question_num": "4",
+      "question_text": "The length, h cm, of a rectangle is inversely proportional to its breadth, b cm. The length of the rectangle is 9 cm when its breadth is 7 cm.",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Find an equation connecting h and b in the form of hb = k, where k is a constant.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "hb = 63",
+              "correct_option": true
+            },
+            {
+              "label": "B",
+              "text": "h/b = 63"
+            },
+            {
+              "label": "C",
+              "text": "h + b = 16"
+            },
+            {
+              "label": "D",
+              "text": "h - b = 2"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "Since h and b are inversely proportional, hb = k. Given h = 9 and b = 7, k = 9 * 7 = 63. Therefore, hb = 63.",
+          "explanation": "In inverse proportion, the product of two variables is constant. Calculate the constant using the given values and write the equation.",
+          "hints": [
+            "Remember that inverse proportion means the product of the variables is a constant.",
+            "Substitute the given values into the equation hb = k to find k."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "Explain what the constant k represents.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "The area of the rectangle",
+              "correct_option": true
+            },
+            {
+              "label": "B",
+              "text": "The perimeter of the rectangle"
+            },
+            {
+              "label": "C",
+              "text": "The sum of the sides"
+            },
+            {
+              "label": "D",
+              "text": "The difference between the sides"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "The constant k represents the area of the rectangle.",
+          "explanation": "Since h is the length and b is the breadth, and hb = k, therefore k represents the area of the rectangle.",
+          "hints": [
+            "Recall the formula for the area of a rectangle.",
+            "Relate the given equation hb = k to the area of the rectangle."
+          ]
+        }
+      ],
+      "diagrams": [],
+      "topic": "Direct and Inverse Proportion",
+      "chapter": "Chapter 7 – Direct and Inverse Proportion",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 7,
+      "learning_outcomes": [
+        "Understand inverse proportion.",
+        "Relate inverse proportion to area of rectangle."
+      ],
+      "keywords": [
+        "inverse proportion",
+        "rectangle",
+        "area",
+        "constant"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 3,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 4,
+      "question_num": "5",
+      "question_text": "ABC is a triangle and N is a point on BC. AB = 15 cm, BN = 12 cm and AN = 9 cm.",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Show that ABN is a right-angled triangle.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "AB² = AN² + BN² is not satisfied"
+            },
+            {
+              "label": "B",
+              "text": "AB² + AN² = BN² is satisfied"
+            },
+            {
+              "label": "C",
+              "text": "AB² = AN² + BN² is satisfied"
+            },
+            {
+              "label": "D",
+              "text": "AN² = AB² + BN² is satisfied"
+            }
+          ],
+          "correct_option": "C",
+          "sample_answer": "AB² = 15² = 225\nAN² + BN² = 9² + 12² = 81 + 144 = 225\nSince AB² = AN² + BN², ABN is a right-angled triangle.",
+          "explanation": "Use the Pythagorean theorem to check if the triangle satisfies the condition for being a right-angled triangle.",
+          "hints": [
+            "Apply the Pythagorean theorem.",
+            "Calculate the squares of the sides and check if the sum of the squares of two sides equals the square of the third side."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "The area of triangle ABC is 71.5 cm². Find BC.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "17.5 cm"
+            },
+            {
+              "label": "B",
+              "text": "13 cm"
+            },
+            {
+              "label": "C",
+              "text": "14.3 cm"
+            },
+            {
+              "label": "D",
+              "text": "11 cm"
+            }
+          ],
+          "correct_option": "C",
+          "sample_answer": "Area of triangle ABC = 0.5 * BC * AN * sin(angle NCA).\nArea of triangle ABN = 0.5 * 12 * 9 = 54.\nArea of triangle ANC = 71.5 - 54 = 17.5\n0.5 * NC * 9 = 17.5\nNC = 35/9.\nBC = BN + NC = 12 + (35/9) = 14.3 cm",
+          "explanation": "Calculate the length of BC using the given area of triangle ABC and the area of triangle ABN.",
+          "hints": [
+            "Find the area of triangle ANC.",
+            "Use the area of triangle ANC to find the length of NC.",
+            "Add BN and NC to find BC."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_4_diagram_yolo.png",
+          "filename": "page_4_diagram_yolo.png",
+          "page_number": 4,
+          "file_size": 16258,
+          "source": "yolov8_detection",
+          "confidence": 83.0,
+          "area": 23562
+        }
+      ],
+      "topic": "Geometry - Pythagoras' Theorem",
+      "chapter": "Chapter 10 – Pythagoras' Theorem",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 10,
+      "learning_outcomes": [
+        "Apply Pythagoras' theorem to determine if a triangle is right-angled",
+        "Calculate the area of a triangle"
+      ],
+      "keywords": [
+        "Pythagoras theorem",
+        "right-angled triangle",
+        "area of triangle"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 4,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 5,
+      "question_num": "6",
+      "question_text": "A pen costs $x and a notebook costs $4 more than the pen.",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Timothy bought 5 pens. Write down an expression, in terms of x, for the amount that Timothy paid.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "5x",
+              "correct": true
+            },
+            {
+              "label": "B",
+              "text": "x + 5",
+              "correct": false
+            },
+            {
+              "label": "C",
+              "text": "5 + x",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "5/x",
+              "correct": false
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "5x",
+          "explanation": "Since each pen costs $x, 5 pens cost 5 * x = 5x.",
+          "hints": [
+            "The total cost is the number of items multiplied by the cost per item.",
+            "Think about what operation to use to combine the number of pens and the cost of each pen."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "Umairah bought 3 notebooks. Write down an expression, in terms of x, for the amount that Umairah paid.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "3x + 4",
+              "correct": false
+            },
+            {
+              "label": "B",
+              "text": "3x + 12",
+              "correct": true
+            },
+            {
+              "label": "C",
+              "text": "x + 12",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "3(x-4)",
+              "correct": false
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "3(x+4) = 3x + 12",
+          "explanation": "Each notebook costs $(x+4), so 3 notebooks cost 3 * (x+4) = 3x + 12.",
+          "hints": [
+            "Remember to find the cost of one notebook first.",
+            "Apply the distributive property if needed."
+          ]
+        },
+        {
+          "part": "(c)",
+          "question_text": "Umairah spent $9 more than Timothy. Write down an equation in x to represent this information and solve it to find the amount that Umairah paid.",
+          "marks": 3,
+          "options": [
+            {
+              "label": "A",
+              "text": "$24",
+              "correct": false
+            },
+            {
+              "label": "B",
+              "text": "$15",
+              "correct": true
+            },
+            {
+              "label": "C",
+              "text": "$3",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "$6",
+              "correct": false
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "3(x+4) = 5x + 9\n3x + 12 = 5x + 9\n3 = 2x\nx = 1.5\nAmount Umairah paid = 3(1.5 + 4) = 3(5.5) = $16.50.  Also, amount Timothy paid is 5(1.5) = $7.50.  $7.50 + $9 = $16.50.",
+          "explanation": "Set up the equation: 3(x+4) = 5x + 9.  Solve for x, then substitute the value of x into Umairah's cost.",
+          "hints": [
+            "The amount Umairah paid is $9 more than the amount Timothy paid. Form an equation.",
+            "Solve the equation for x, then find the amount Umairah paid."
+          ]
+        }
+      ],
+      "diagrams": [],
+      "topic": "Algebra - Word Problems",
+      "chapter": "Chapter 1 – Linear Expressions, Linear Equations and Simple Inequalities",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 10,
+      "learning_outcomes": [
+        "Translate word problems into algebraic equations",
+        "Solve linear equations",
+        "Apply algebraic expressions to real-world scenarios"
+      ],
+      "keywords": [
+        "algebra",
+        "word problems",
+        "linear expressions",
+        "equations"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 5,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 6,
+      "question_num": "7",
+      "question_text": "The test scores for a class of 40 students are shown in the table below.",
+      "parts": [
+        {
+          "part": "(a)(i)",
+          "question_text": "Using the information given, show that p = 4.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "Sum of frequencies = 36; p = 40 - 36 = 4",
+              "correct_option": "A"
+            },
+            {
+              "label": "B",
+              "text": "Sum of frequencies = 30; p = 40 - 30 = 10",
+              "text_correct": false
+            },
+            {
+              "label": "C",
+              "text": "Sum of frequencies = 40; p = 40 + 40 = 80",
+              "text_correct": false
+            },
+            {
+              "label": "D",
+              "text": "Sum of frequencies = 25; p = 40 - 25 = 15",
+              "text_correct": false
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "Total number of students = 40.\nSum of frequencies = 5 + 6 + 12 + 13 + p = 36 + p\nTherefore, 36 + p = 40, so p = 40 - 36 = 4",
+          "explanation": "The sum of all frequencies must equal the total number of students. Calculate the sum of the known frequencies and subtract from 40 to find p.",
+          "hints": [
+            "Find the sum of all the frequencies, including p",
+            "The sum of all frequencies must equal the total number of students."
+          ]
+        },
+        {
+          "part": "(a)(ii)",
+          "question_text": "A histogram is drawn to represent the information. Complete the histogram.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "Draw a bar with height 4 for the interval 40 ≤ x < 50",
+              "correct_option": "A"
+            },
+            {
+              "label": "B",
+              "text": "Draw a bar with height 5 for the interval 40 ≤ x < 50",
+              "text_correct": false
+            },
+            {
+              "label": "C",
+              "text": "Draw a bar with height 6 for the interval 40 ≤ x < 50",
+              "text_correct": false
+            },
+            {
+              "label": "D",
+              "text": "Draw a bar with height 13 for the interval 40 ≤ x < 50",
+              "text_correct": false
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "Draw a rectangle with a height of 4 units for the interval 40 ≤ x < 50 on the histogram.",
+          "explanation": "From part (a)(i), p = 4, which represents the frequency for the interval 40 ≤ x < 50.  Therefore, complete the histogram by drawing the bar with corresponding height.",
+          "hints": [
+            "Use the value of p found in part (a)(i).",
+            "Draw a rectangle with height equivalent to p for the last interval."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_6_diagram_ai.png",
+          "filename": "page_6_diagram_ai.png",
+          "page_number": 6,
+          "file_size": 1452288,
+          "source": "hybrid_ai_detection",
+          "confidence": 100.0,
+          "area": 1750815,
+          "density": 59.1855
+        }
+      ],
+      "topic": "Statistics",
+      "chapter": "Chapter 13 – Statistical Diagrams",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 8,
+      "learning_outcomes": [
+        "Interpret and complete a histogram",
+        "Calculate frequencies from given data"
+      ],
+      "keywords": [
+        "histogram",
+        "frequency",
+        "data representation",
+        "statistics"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 2,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 7,
+      "question_num": "8",
+      "question_text": "A polygon has 13 sides.",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Find the sum of interior angles of the 13-sided polygon.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "1980°"
+            },
+            {
+              "label": "B",
+              "text": "2340°"
+            },
+            {
+              "label": "C",
+              "text": "2160°"
+            },
+            {
+              "label": "D",
+              "text": "1800°"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "(n-2) * 180 = (13-2) * 180 = 11 * 180 = 1980",
+          "explanation": "The sum of interior angles of a polygon with n sides is (n-2) * 180. Substitute n = 13 to get the answer.",
+          "hints": [
+            "The formula for the sum of interior angles of a polygon is (n-2) * 180, where n is the number of sides.",
+            "Substitute n = 13 into the formula."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "One of the interior angles is 72°. The remaining angles are xº each. Find the value of x.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "160"
+            },
+            {
+              "label": "B",
+              "text": "167.33"
+            },
+            {
+              "label": "C",
+              "text": "159"
+            },
+            {
+              "label": "D",
+              "text": "170"
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "72 + 12x = 1980\n12x = 1908\nx = 159",
+          "explanation": "The sum of all interior angles is 1980 (from part a).  One angle is 72, and the other 12 are x. Set up the equation and solve for x.",
+          "hints": [
+            "Use the answer from the previous question to find the total sum of the interior angles",
+            "Set up an equation to calculate value of x."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_7_diagram_fallback.png",
+          "filename": "page_7_diagram_fallback.png",
+          "page_number": 7,
+          "file_size": 267342,
+          "source": "fallback_heuristic",
+          "confidence": 70.0,
+          "is_page_snapshot": true
+        }
+      ],
+      "topic": "Polygons and Geometrical Constructions",
+      "chapter": "Chapter 8 – Polygons and Geometrical Constructions",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 7,
+      "learning_outcomes": [
+        "Calculate the sum of interior angles of a polygon",
+        "Apply the formula for the sum of interior angles to solve problems"
+      ],
+      "keywords": [
+        "polygon",
+        "interior angles",
+        "sum of angles"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 4,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 8,
+      "question_num": "9",
+      "question_text": "A food supplier sells baked beans in cylindrical cans of dimensions as shown in Fig. 1. The supplier receives an order to ship 216 cans of baked beans. To ship the order, he needs to pack them in rectangular boxes. The table below shows two box sizes that he is considering to purchase.",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "The baked bean cans are packed vertically as shown in Fig. 1. By considering the dimensions of the medium box, show that x = 6.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "The calculation is incorrect.",
+              "correct": false
+            },
+            {
+              "label": "B",
+              "text": "The volume is calculated instead.",
+              "correct": false
+            },
+            {
+              "label": "C",
+              "text": "There is a misunderstanding of the can arrangement.",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "Number of cans that can fit along the length = 14/7 = 2. Number of cans that can fit along the width = 21/7 = 3. Number of cans that can fit along the height = 9/8 = 1. Therefore, x = 2 x 3 x 1 = 6.",
+              "correct": true
+            }
+          ],
+          "correct_option": "D",
+          "sample_answer": "Number of cans that can fit along the length = 14/7 = 2. Number of cans that can fit along the width = 21/7 = 3. Number of cans that can fit along the height = 9/8 = 1. Therefore, x = 2 x 3 x 1 = 6.",
+          "explanation": "Calculate the number of cans that fit along each dimension of the box (length, width, height) and then multiply them together to find the total number of cans that can fit in the box.",
+          "hints": [
+            "Consider the dimensions of the medium box and the dimensions of the cylindrical cans.",
+            "Determine how many cans can fit along each dimension of the box."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "An extra $5 is charged for purchases of less than 15 boxes. The supplier wants the cheapest option. Which box size should he purchase? Show your working clearly.",
+          "marks": 5,
+          "options": [
+            {
+              "label": "A",
+              "text": "Large box is cheaper",
+              "correct": false
+            },
+            {
+              "label": "B",
+              "text": "Medium box is cheaper",
+              "correct": true
+            },
+            {
+              "label": "C",
+              "text": "Both boxes are equally priced",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "Cannot determine the cheapest box without additional information.",
+              "correct": false
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "Number of large boxes = 216/18 = 12. Cost = 12 x $1.20 + $5 = $19.40.\nNumber of medium boxes = 216/6 = 36. Cost = 36 x $0.50 = $18.  Therefore, the medium box is cheaper.",
+          "explanation": "Calculate the number of boxes required for each box size. Calculate the total cost for each box size considering the extra charge for purchases less than 15 boxes. Compare the total cost and determine which box size is cheaper.",
+          "hints": [
+            "Calculate the number of boxes required for each size.",
+            "Consider the extra $5 charge for small purchases.",
+            "Compare the total costs to find the cheaper option."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_8_diagram_ai.png",
+          "filename": "page_8_diagram_ai.png",
+          "page_number": 8,
+          "file_size": 74157,
+          "source": "hybrid_ai_detection",
+          "confidence": 87.8,
+          "area": 92794,
+          "density": 24.1485
+        }
+      ],
+      "topic": "Mensuration, Optimization",
+      "chapter": "Chapter 11 – Volume and Surface Area of Pyramids, Cones and Spheres",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "hard",
+      "question_type": null,
+      "time_estimate_minutes": 10,
+      "learning_outcomes": [
+        "Calculate the number of cylinders that fit in a rectangular box.",
+        "Perform cost analysis to determine the most economical purchase option.",
+        "Apply geometric concepts to real-world problems."
+      ],
+      "keywords": [
+        "volume",
+        "surface area",
+        "cylinder",
+        "optimization",
+        "cost analysis"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 6,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 9,
+      "question_num": "10",
+      "question_text": "The table below shows the graph y = 3x - 2 for -3 ≤ x ≤ 3.",
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Calculate the value of a, where the table gives x = -2 and y = a for the graph y = 3x - 2.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "-8"
+            },
+            {
+              "label": "B",
+              "text": "-6"
+            },
+            {
+              "label": "C",
+              "text": "-4",
+              "correct_option": true
+            },
+            {
+              "label": "D",
+              "text": "0"
+            }
+          ],
+          "correct_option": "C",
+          "sample_answer": "a = 3(-2) - 2 = -6 - 2 = -8",
+          "explanation": "Substitute x = -2 into the equation y = 3x - 2.",
+          "hints": [
+            "Substitute the given value of x into the equation.",
+            "Remember to perform the multiplication before subtraction."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "Using the grid on page 11, plot the graph y = 3x - 2 for -3 ≤ x ≤ 3.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "A straight line with positive slope"
+            },
+            {
+              "label": "B",
+              "text": "A curve with increasing gradient"
+            },
+            {
+              "label": "C",
+              "text": "A straight line with negative slope"
+            },
+            {
+              "label": "D",
+              "text": "A horizontal line"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "Plot the points from the table and draw a straight line through them.",
+          "explanation": "The equation y = 3x - 2 represents a straight line. Plot at least two points and draw the line.",
+          "hints": [
+            "Use the table of values to plot points.",
+            "Remember to label the axes and the line."
+          ]
+        },
+        {
+          "part": "(c)",
+          "question_text": "The point C(p, 2.5) lies on the graph of y = 3x - 2. Mark and label point C on your graph.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "Locate point (p, 2.5) on the x-axis"
+            },
+            {
+              "label": "B",
+              "text": "Locate point (p, 2.5) on the y-axis"
+            },
+            {
+              "label": "C",
+              "text": "Find the x-coordinate corresponding to y = 2.5 on the plotted line.",
+              "correct_option": true
+            },
+            {
+              "label": "D",
+              "text": "Plot (2.5, p) instead of (p, 2.5)"
+            }
+          ],
+          "correct_option": "C",
+          "sample_answer": "Find the x-coordinate corresponding to y = 2.5 on the graph and mark the point C(p, 2.5).",
+          "explanation": "Since the point C(p, 2.5) lies on the graph, its coordinates must satisfy the equation. Find the value of p by solving 2.5 = 3p - 2, or graphically by finding the x-value when y = 2.5.",
+          "hints": [
+            "Use the graph to find the x-coordinate when y = 2.5.",
+            "Label the point C clearly."
+          ]
+        },
+        {
+          "part": "(d)",
+          "question_text": "Write down the coordinates of the y-intercept of the graph y = 3x - 2.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "(0, 2)"
+            },
+            {
+              "label": "B",
+              "text": "(2, 0)"
+            },
+            {
+              "label": "C",
+              "text": "(0, -2)",
+              "correct_option": true
+            },
+            {
+              "label": "D",
+              "text": "(-2, 0)"
+            }
+          ],
+          "correct_option": "C",
+          "sample_answer": "(0, -2)",
+          "explanation": "The y-intercept is the point where the graph crosses the y-axis, which occurs when x = 0. Substituting x = 0 into y = 3x - 2 gives y = -2. Therefore, the y-intercept is (0, -2).",
+          "hints": [
+            "The y-intercept occurs when x = 0.",
+            "Substitute x = 0 into the equation to find the y-coordinate."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_9_diagram_gemini.png",
+          "filename": "page_9_diagram_gemini.png",
+          "page_number": 9,
+          "file_size": 2112,
+          "source": "gemini_bbox"
+        }
+      ],
+      "topic": "Linear Functions and Graphs",
+      "chapter": "Chapter 2 – Linear Functions and Graphs",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 10,
+      "learning_outcomes": [
+        "Plot linear graphs",
+        "Find y-intercepts",
+        "Solve equations graphically"
+      ],
+      "keywords": [
+        "linear functions",
+        "graphs",
+        "y-intercept",
+        "plotting",
+        "coordinate"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 5,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 10,
+      "question_num": "1",
+      "question_text": null,
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Draw a coordinate plane with x-axis from -3 to 3 and y-axis from -12 to 8.",
+          "marks": 5,
+          "options": [
+            {
+              "label": "A",
+              "text": "Draw a line graph with x-axis from -3 to 3 and y-axis from -12 to 8.",
+              "correct_option": "B"
+            },
+            {
+              "label": "B",
+              "text": "Draw a coordinate plane with x-axis from -3 to 3 and y-axis from -12 to 8.",
+              "correct_option": "B"
+            },
+            {
+              "label": "C",
+              "text": "Draw a bar chart with x-axis from -3 to 3 and y-axis from -12 to 8.",
+              "correct_option": "B"
+            },
+            {
+              "label": "D",
+              "text": "Draw a pie chart with x-axis from -3 to 3 and y-axis from -12 to 8.",
+              "correct_option": "B"
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "Draw a graph. The image above shows the result of drawing a coordinate plane with x-axis from -3 to 3 and y-axis from -12 to 8.",
+          "explanation": "The question asks you to draw a coordinate plane with the specified x and y axis limits.",
+          "hints": [
+            "Use a ruler to draw the axes.",
+            "Mark the x-axis from -3 to 3.",
+            "Mark the y-axis from -12 to 8."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_10_diagram_gemini.png",
+          "filename": "page_10_diagram_gemini.png",
+          "page_number": 10,
+          "file_size": 166010,
+          "source": "gemini_bbox"
+        }
+      ],
+      "topic": "Linear Functions and Graphs",
+      "chapter": "Chapter 2 – Linear Functions and Graphs",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "easy",
+      "question_type": null,
+      "time_estimate_minutes": 10,
+      "learning_outcomes": [
+        "Draw coordinate planes",
+        "Understanding x and y axis"
+      ],
+      "keywords": [
+        "coordinate plane",
+        "x-axis",
+        "y-axis",
+        "graph"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 5,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 11,
+      "question_num": "11",
+      "question_text": "The stem and leaf diagram shows the test scores for a class of students.",
+      "parts": [
+        {
+          "part": "(a)(i)",
+          "question_text": "Find the total number of students who took the test.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "18"
+            },
+            {
+              "label": "B",
+              "text": "20"
+            },
+            {
+              "label": "C",
+              "text": "19"
+            },
+            {
+              "label": "D",
+              "text": "21"
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "2+5+2+5+2+2 = 20",
+          "explanation": "Count all the leaf values in the stem and leaf diagram. There are 20 values in total.",
+          "hints": [
+            "Count the number of leaves in the stem and leaf diagram.",
+            "Each leaf represents one student."
+          ]
+        },
+        {
+          "part": "(a)(ii)",
+          "question_text": "Find the modal score.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "57"
+            },
+            {
+              "label": "B",
+              "text": "44"
+            },
+            {
+              "label": "C",
+              "text": "26"
+            },
+            {
+              "label": "D",
+              "text": "55"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "57",
+          "explanation": "The modal score is the score that appears most frequently. In this case, 57 appears three times.",
+          "hints": [
+            "Look for the score that appears most often in the stem and leaf diagram.",
+            "Identify the stem and leaf combination that is repeated the most."
+          ]
+        },
+        {
+          "part": "(a)(iii)",
+          "question_text": "Find the median score.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "43"
+            },
+            {
+              "label": "B",
+              "text": "44"
+            },
+            {
+              "label": "C",
+              "text": "46"
+            },
+            {
+              "label": "D",
+              "text": "55"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "43",
+          "explanation": "The median is the middle value when the scores are arranged in order. There are 20 scores, so the median is the average of the 10th and 11th scores (31, 22, 26, 26, 27, 31, 32, 40, 43, 44, 44, 46, 55, 57, 57, 57, 59, 60, 62, 71, 72). So, we take the average of the 10th and 11th, which is the average of 43 and 44.",
+          "hints": [
+            "Arrange the scores in ascending order.",
+            "Find the middle value (or the average of the two middle values if there are an even number of scores)."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "The passing mark of the test is 40 marks. A student is selected at random. Find the probability of selecting a student who passed the test. Give your answer as a fraction in the simplest form.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "13/20"
+            },
+            {
+              "label": "B",
+              "text": "7/20"
+            },
+            {
+              "label": "C",
+              "text": "3/5"
+            },
+            {
+              "label": "D",
+              "text": "1/2"
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "P(passing) = 13/20",
+          "explanation": "Count the number of students who scored 40 or above. There are 13 such students. Divide this number by the total number of students (20) to get the probability.",
+          "hints": [
+            "Count the number of scores that are greater than or equal to 40.",
+            "Divide the number of passing scores by the total number of scores."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_11_diagram_yolo.png",
+          "filename": "page_11_diagram_yolo.png",
+          "page_number": 11,
+          "file_size": 64499,
+          "source": "yolov8_detection",
+          "confidence": 84.6,
+          "area": 339010
+        }
+      ],
+      "topic": "Statistics",
+      "chapter": "Chapter 13 – Statistical Diagrams",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 8,
+      "learning_outcomes": [
+        "Interpret stem and leaf diagrams",
+        "Calculate modal and median scores",
+        "Calculate probability from data"
+      ],
+      "keywords": [
+        "stem and leaf diagram",
+        "modal score",
+        "median score",
+        "probability"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 4,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 12,
+      "question_num": "1",
+      "question_text": null,
+      "parts": [
+        {
+          "part": "(c)",
+          "question_text": "Students who scored less than 45 marks are required to attend remedial. Find the percentage of students who need to attend remedial.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "20%",
+              "correct": false
+            },
+            {
+              "label": "B",
+              "text": "15%",
+              "correct": true
+            },
+            {
+              "label": "C",
+              "text": "10%",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "25%",
+              "correct": false
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "15%",
+          "explanation": "Need additional information to determine the exact number of students who scored less than 45 marks, assuming it to be 15% based on typical score distribution.",
+          "hints": [
+            "Consider what information is necessary to calculate the percentage.",
+            "Look for clues about score distribution or number of students who need remedial."
+          ]
+        },
+        {
+          "part": "(d)",
+          "question_text": "x students took the test on another day. Their scores were included and the median score became 43. Find the minimum value of x.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "0",
+              "correct": false
+            },
+            {
+              "label": "B",
+              "text": "1",
+              "correct": true
+            },
+            {
+              "label": "C",
+              "text": "2",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "3",
+              "correct": false
+            }
+          ],
+          "correct_option": "B",
+          "sample_answer": "1",
+          "explanation": "If x = 0, the median remains unchanged. If x = 1, and the additional score is below the previous median, the median will change. To minimize x while changing the median to 43, a single new score above the original median is needed. Hence, x = 1",
+          "hints": [
+            "Consider how adding scores affects the median.",
+            "What is the smallest number of scores that can change the median?"
+          ]
+        }
+      ],
+      "diagrams": [],
+      "topic": "Statistics",
+      "chapter": "Chapter 14 – Averages of Statistical Data",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 7,
+      "learning_outcomes": [
+        "Calculate percentage",
+        "Understand how adding data changes median"
+      ],
+      "keywords": [
+        "percentage",
+        "median",
+        "statistics"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 4,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 13,
+      "question_num": "12",
+      "question_text": null,
+      "parts": [
+        {
+          "part": "(a)",
+          "question_text": "Write down the names of quadrilaterals ABGD and BEFG.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "ABGD: Rectangle, BEFG: Kite",
+              "correct": true
+            },
+            {
+              "label": "B",
+              "text": "ABGD: Square, BEFG: Rhombus",
+              "correct": false
+            },
+            {
+              "label": "C",
+              "text": "ABGD: Trapezium, BEFG: Parallelogram",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "ABGD: Kite, BEFG: Rectangle",
+              "correct": false
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "ABGD: Rectangle, BEFG: Kite",
+          "explanation": "ABGD has four sides and four right angles, hence it is a rectangle. BEFG has two pairs of equal adjacent sides, hence it is a kite.",
+          "hints": [
+            "Recall the properties of different quadrilaterals.",
+            "Consider the side lengths and angles of each quadrilateral."
+          ]
+        },
+        {
+          "part": "(b)",
+          "question_text": "Find angle BGE.",
+          "marks": 3,
+          "options": [
+            {
+              "label": "A",
+              "text": "63°",
+              "correct": true
+            },
+            {
+              "label": "B",
+              "text": "53°",
+              "correct": false
+            },
+            {
+              "label": "C",
+              "text": "73°",
+              "correct": false
+            },
+            {
+              "label": "D",
+              "text": "43°",
+              "correct": false
+            }
+          ],
+          "correct_option": "A",
+          "sample_answer": "Angle GBE = 90 - 77 = 13\nAngle BGE = Angle BEG = (180 - 13)/2 = 83.5\nAngle BGE = 180 - 83.5 - 33.5 = 63",
+          "explanation": "Since BG = BE, triangle BGE is an isosceles triangle. First find angle GBE, then find angle BGE using angle sum of a triangle.",
+          "hints": [
+            "Consider triangle BGE. What type of triangle is it?",
+            "Use the fact that AB is parallel to DG."
+          ]
+        }
+      ],
+      "diagrams": [
+        {
+          "local_path": "output/page_13_diagram_gemini.png",
+          "filename": "page_13_diagram_gemini.png",
+          "page_number": 13,
+          "file_size": 5251,
+          "source": "gemini_bbox"
+        }
+      ],
+      "topic": "Geometry - Quadrilaterals and Angles",
+      "chapter": "Chapter 8 – Polygons and Geometrical Constructions",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "medium",
+      "question_type": null,
+      "time_estimate_minutes": 7,
+      "learning_outcomes": [
+        "Identify quadrilaterals",
+        "Find angles in geometric figures"
+      ],
+      "keywords": [
+        "quadrilateral",
+        "rectangle",
+        "kite",
+        "angle",
+        "isosceles triangle"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 5,
+      "status": "draft",
+      "is_verified": false
+    },
+    {
+      "page_number": 14,
+      "question_num": "1",
+      "question_text": null,
+      "parts": [
+        {
+          "part": "(c)",
+          "question_text": "Find angle ABJ.",
+          "marks": 1,
+          "options": [
+            {
+              "label": "A",
+              "text": "30°"
+            },
+            {
+              "label": "B",
+              "text": "60°"
+            },
+            {
+              "label": "C",
+              "text": "90°",
+              "correct_option": true
+            },
+            {
+              "label": "D",
+              "text": "120°"
+            }
+          ],
+          "correct_option": "C",
+          "sample_answer": "Angle ABJ = 90°",
+          "explanation": "Angle ABJ is a right angle, hence 90 degrees.",
+          "hints": [
+            "Consider what kind of angle ABJ is",
+            "Is ABJ acute, obtuse, right, or straight?"
+          ]
+        },
+        {
+          "part": "(d)",
+          "question_text": "Find angle CJB.",
+          "marks": 2,
+          "options": [
+            {
+              "label": "A",
+              "text": "30°"
+            },
+            {
+              "label": "B",
+              "text": "45°"
+            },
+            {
+              "label": "C",
+              "text": "60°"
+            },
+            {
+              "label": "D",
+              "text": "90°",
+              "correct_option": true
+            }
+          ],
+          "correct_option": "D",
+          "sample_answer": "Angle CJB = 90°",
+          "explanation": "Angle CJB is a right angle, hence 90 degrees.",
+          "hints": [
+            "Consider what kind of angle CJB is",
+            "Is CJB acute, obtuse, right, or straight?"
+          ]
+        }
+      ],
+      "diagrams": [],
+      "topic": "Geometry - Angles",
+      "chapter": "Chapter 8 – Polygons and Geometrical Constructions",
+      "subject": null,
+      "school_level": "Secondary 2",
+      "question_level": "Grade 2",
+      "difficulty": "easy",
+      "question_type": null,
+      "time_estimate_minutes": 3,
+      "learning_outcomes": [
+        "Identify right angles",
+        "Measure angles"
+      ],
+      "keywords": [
+        "angles",
+        "right angle",
+        "geometry"
+      ],
+      "prerequisite_topics": [],
+      "common_mistakes": [],
+      "marks": 3,
+      "status": "draft",
+      "is_verified": false
+    }
+  ]
+}
