@@ -17,16 +17,28 @@ export class PythonExecutorService {
     private readonly scriptPath: string;
 
     constructor(private readonly configService: ConfigService) {
+        // Log all Python-related environment variables for debugging
+        this.logger.log('=== Python Environment Configuration ===');
+        this.logger.log(`PYTHON_VENV_PATH: ${this.configService.get('PYTHON_VENV_PATH')}`);
+        this.logger.log(`PYTHON_SCRIPT_PATH: ${this.configService.get('PYTHON_SCRIPT_PATH')}`);
+        this.logger.log(`PYTHON_EXECUTABLE: ${this.configService.get('PYTHON_EXECUTABLE')}`);
+        this.logger.log(`NODE_ENV: ${this.configService.get('NODE_ENV')}`);
+        this.logger.log(`Current working directory: ${process.cwd()}`);
+        this.logger.log('========================================');
+
         this.pythonPath =
-            this.configService.get('PYTHON_VENV_PATH') || 'python3';
-        this.scriptPath = this.configService.get('PYTHON_SCRIPT_PATH');
+            this.configService.get('PYTHON_VENV_PATH') ||
+            this.configService.get('PYTHON_EXECUTABLE') ||
+            '/app/venv/bin/python';
+        this.scriptPath = this.configService.get('PYTHON_SCRIPT_PATH') ||
+            '/app/pdf-processor/test_enriched_batch_processor.py';
 
         if (!this.scriptPath) {
             throw new Error('PYTHON_SCRIPT_PATH not configured in environment');
         }
 
-        this.logger.log(`Python interpreter: ${this.pythonPath}`);
-        this.logger.log(`Python script: ${this.scriptPath}`);
+        this.logger.log(`✓ Using Python interpreter: ${this.pythonPath}`);
+        this.logger.log(`✓ Using Python script: ${this.scriptPath}`);
     }
 
     async executeBatchProcessor(
