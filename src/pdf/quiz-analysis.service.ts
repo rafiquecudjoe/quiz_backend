@@ -350,7 +350,7 @@ Return ONLY the question text, no explanation or answer. Make it concise and pra
           this.logger.log(`✅ Generated AI question for topic: ${wrong.topic}`);
 
           // Small delay to avoid rate limiting
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 7000));
         } catch (error) {
           this.logger.error(`Failed to generate AI question for ${wrong.topic}: ${error.message}`);
           // Fallback to template
