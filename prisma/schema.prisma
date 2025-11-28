@@ -90,6 +90,11 @@ model QuestionPart {
   explanation       String?
   hints             String[] // Array of hints
   
+  // Step-by-step answer (hybrid approach)
+  stepByStepAnswer  String?  // Official parsed answer with detailed steps
+  answerSource      String?  // "official_pdf", "ai_generated", or null
+  answerDiagrams    Json?    // Array of diagram references for the answer
+  
   // Multiple choice options (if applicable)
   options           Json?    // {value: "a", label: "Option text"}[]
   correctOption     Int?     // Index of correct option (0, 1, 2, 3)

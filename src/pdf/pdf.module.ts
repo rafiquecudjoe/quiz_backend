@@ -9,6 +9,8 @@ import { PdfService } from './pdf.service';
 import { PythonExecutorService } from './python-executor.service';
 import { PdfGeneratorService } from './pdf-generator.service';
 import { QuizAnalysisService } from './quiz-analysis.service';
+import { AnswerLinkingService } from './answer-linking.service';
+import { GeminiAnswerService } from './gemini-answer.service';
 import { EmailModule } from '../email/email.module';
 
 @Module({
@@ -48,7 +50,6 @@ import { EmailModule } from '../email/email.module';
     EmailModule,
   ],
   controllers: [PdfController],
-  providers: [PdfService, PythonExecutorService, PdfGeneratorService, QuizAnalysisService],
+  providers: [PdfService, PythonExecutorService, PdfGeneratorService, QuizAnalysisService, AnswerLinkingService, GeminiAnswerService],
 })
 export class PdfModule { }
-

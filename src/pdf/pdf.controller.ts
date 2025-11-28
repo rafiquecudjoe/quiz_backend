@@ -194,6 +194,110 @@ export class PdfController {
   }
 
   /**
+   * Upload answer PDF for a specific job
+   * POST /pdf/jobs/:jobId/upload-answers
+   */
+  @Post('jobs/:jobId/upload-answers')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueName = `answers-${uuidv4()}${path.extname(file.originalname)}`;
+          cb(null, uniqueName);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+          return cb(
+            new HttpException('Only PDF files allowed', HttpStatus.BAD_REQUEST),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async uploadAnswerPdf(
+    @Param('jobId') jobId: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body('paperSection') paperSection?: string,
+  ) {
+    if (!file) {
+      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+    }
+
+    // Verify job exists
+    const job = await this.pdfService.getJobStatus(jobId);
+    if (!job || job.status !== 'completed') {
+      throw new HttpException(
+        'Job not found or not completed yet',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    this.logger.log(`Processing answer PDF for job ${jobId}: ${file.originalname}${paperSection ? ` (${paperSection})` : ''}`);
+
+    return await this.pdfService.processAnswersPdf(jobId, file, paperSection);
+  }
+
+  /**
+   * Get answer status for a job
+   * GET /pdf/jobs/:jobId/answers-status
+   */
+  @Get('jobs/:jobId/answers-status')
+  async getAnswersStatus(@Param('jobId') jobId: string) {
+    const status = await this.pdfService.getAnswersStatus(jobId);
+
+    if (!status) {
+      throw new HttpException('Job not found', HttpStatus.NOT_FOUND);
+    }
+
+    return status;
+  }
+
+  /**
+   * Generate AI answer for a specific question part
+   * POST /pdf/questions/:questionId/parts/:partId/generate-answer
+   */
+  @Post('questions/:questionId/parts/:partId/generate-answer')
+  async generateAiAnswer(
+    @Param('questionId') questionId: string,
+    @Param('partId') partId: string,
+  ) {
+    this.logger.log(`Generating AI answer for question ${questionId}, part ${partId}`);
+
+    const result = await this.pdfService.generateAiAnswerForPart(questionId, partId);
+
+    return {
+      success: true,
+      questionId,
+      partId,
+      answer: result.answer,
+      message: 'AI answer generated successfully',
+    };
+  }
+
+  /**
+   * Bulk generate AI answers for all parts in a job without answers
+   * POST /pdf/jobs/:jobId/generate-all-answers
+   */
+  @Post('jobs/:jobId/generate-all-answers')
+  async generateAllAnswers(@Param('jobId') jobId: string) {
+    this.logger.log(`Bulk generating AI answers for job ${jobId}`);
+
+    const result = await this.pdfService.bulkGenerateAiAnswers(jobId);
+
+    return {
+      success: true,
+      jobId,
+      generated: result.generated,
+      failed: result.failed,
+      message: `Generated ${result.generated} AI answers`,
+    };
+  }
+
+  /**
    * Get quiz questions (frontend endpoint)
    * GET /quiz/questions
    * Query params:

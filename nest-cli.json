@@ -4,6 +4,7 @@
   "sourceRoot": "src",
   "compilerOptions": {
     "deleteOutDir": true
-  }
+  },
+  "exclude": ["link-answers-to-questions.ts", "update-questions-to-grade2.ts"]
 }
 

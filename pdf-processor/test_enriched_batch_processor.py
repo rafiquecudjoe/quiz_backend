@@ -412,7 +412,7 @@ If you cannot find a relevant diagram, return: {{"bbox": null, "type": "none", "
                         'common_mistakes': enrichment.get('common_mistakes', []),
                         
                         # Calculate total marks
-                        'marks': sum(part.get('marks', 0) for part in question.get('parts', [])),
+                        'marks': sum(part.get('marks') or 0 for part in question.get('parts', [])),
                         
                         # Status
                         'status': 'draft',  # Needs admin verification

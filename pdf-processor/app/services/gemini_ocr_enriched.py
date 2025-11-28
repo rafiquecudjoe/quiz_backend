@@ -60,6 +60,10 @@ class GeminiOCREnriched:
             # Enhanced batch prompt with auto-enrichment
             prompt = """Extract ALL text and quiz data from these exam pages WITH AUTOMATIC ENRICHMENT.
 
+⚠️ IMPORTANT: When generating step-by-step answers, be CONCISE and ACCURATE. 
+Double-check all math internally BEFORE writing. NEVER show self-corrections or errors.
+Students need clean, professional, error-free solutions.
+
 CRITICAL OUTPUT FORMAT REQUIREMENTS:
 1. ALL parts of a question MUST be grouped under ONE question object (same question number)
 2. Each question object should have ALL its parts (a), (b), (c), etc. in the same "parts" array
@@ -73,7 +77,20 @@ CRITICAL OUTPUT FORMAT REQUIREMENTS:
    - Include exactly 4 options labeled A, B, C, D.
    - Ensure one option is correct and mark it as "correct_option" (e.g., "A", "B").
    - Provide plausible distractors for the incorrect options. For open-ended questions, generate options that represent common correct and incorrect answers.
-6. This format will be used directly in database and frontend - NO further processing needed
+6. Generate STEP-BY-STEP ANSWERS for EVERY question part - CRITICAL REQUIREMENTS:
+   - Be CONCISE and DIRECT - verify your work mentally BEFORE writing
+   - NO self-correction, NO "let's try again", NO error acknowledgments
+   - NO verbose explanations or thinking out loud
+   - Maximum 4-5 steps for most problems (keep it simple!)
+   - Format with numbered "Step X:" labels
+   - Show ONLY the correct mathematical working
+   - Use proper mathematical notation
+   - End with "**Final Answer:**" followed by the answer
+   - Separate steps with double newline (\\n\\n)
+   - IMPORTANT: Double-check your math BEFORE generating the answer
+   - Example format (CONCISE):
+     "Step 1: Multiply equation 2 by -2\\n-2x - 6y = -12\\n\\nStep 2: Add to equation 1\\n2x + 5y + (-2x - 6y) = 8 - 12\\n-y = -4\\ny = 4\\n\\nStep 3: Substitute y = 4 into equation 2\\nx + 3(4) = 6\\nx = -6\\n\\n**Final Answer:** x = -6, y = 4"
+7. This format will be used directly in database and frontend - NO further processing needed
 
 DIAGRAM DETECTION INSTRUCTIONS (CRITICAL FOR MULTIPLE DIAGRAMS):
 For EACH question that has a diagram, graph, chart, table, or visual element:
@@ -101,7 +118,7 @@ IMPORTANT: There are ONLY 3 valid grade levels:
 Detection rules:
 - Look for explicit Grade mentions like "Grade 1", "Grade 2", "Grade 3" in the paper header/title
 - If the paper says "Secondary 2 (Normal Academic - Grade 2)", the question_level should be "Grade 2"
-- If the paper says "Normal Academic", the question_level should be "Grade 1"
+- If the paper says "Normal Academic" (without explicit grade), the question_level should be "Grade 2"
 - NEVER use other grade numbers like "Grade 4", "Grade 8", etc. - only use Grade 1, 2, or 3
 - Ensure "question_level" is populated for EVERY question using one of these 3 values
 
@@ -151,6 +168,7 @@ Return JSON with this EXACT structure:
                 "correct_option": "A",
                 "sample_answer": "Detailed answer with working",
                 "explanation": "Why this is correct",
+                "step_by_step_answer": "Step 1: Set up the equation\\n2x + 3 = 9\\n\\nStep 2: Subtract 3 from both sides\\n2x = 6\\n\\nStep 3: Divide both sides by 2\\nx = 3\\n\\n**Final Answer:** x = 3",
                 "hints": [
                   "Hint 1: A gentle nudge in the right direction without revealing too much",
                   "Hint 2: A more specific hint that guides toward the solution method"
@@ -164,6 +182,7 @@ Return JSON with this EXACT structure:
                 "correct_option": null,
                 "sample_answer": "3(5) - 1 = 15 - 1 = 14",
                 "explanation": "Substitute x = 5 from part (a) into 3x - 1",
+                "step_by_step_answer": "Step 1: Use x from part (a)\\nx = 5\\n\\nStep 2: Substitute into 3x - 1\\n3(5) - 1\\n\\nStep 3: Simplify\\n= 15 - 1\\n= 14\\n\\n**Final Answer:** 14",
                 "hints": [
                   "Use the value of x found in part (a)",
                   "Substitute x = 5 into the expression 3x - 1"

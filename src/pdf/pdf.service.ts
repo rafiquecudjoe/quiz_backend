@@ -6,6 +6,8 @@ import { PythonExecutorService } from './python-executor.service';
 import { EmailService } from '../email/email.service';
 import { PdfGeneratorService } from './pdf-generator.service';
 import { QuizAnalysisService } from './quiz-analysis.service';
+import { AnswerLinkingService } from './answer-linking.service';
+import { GeminiAnswerService } from './gemini-answer.service';
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -83,6 +85,8 @@ export class PdfService {
     private readonly emailService: EmailService,
     private readonly pdfGenerator: PdfGeneratorService,
     private readonly quizAnalysis: QuizAnalysisService,
+    private readonly answerLinkingService: AnswerLinkingService,
+    private readonly geminiAnswerService: GeminiAnswerService,
   ) {
     this.outputDir = this.configService.get('OUTPUT_DIR') || './output';
     this.minConfidenceThreshold = parseFloat(
@@ -441,6 +445,8 @@ export class PdfService {
             hints: part.hints,
             options: part.options && part.options.length > 0 ? part.options : null,
             correctOption: typeof part.correct_option === 'string' && part.options ? part.options.findIndex(opt => opt.label === part.correct_option) : part.correct_option,
+            stepByStepAnswer: (part as any).step_by_step_answer || null,
+            answerSource: (part as any).step_by_step_answer ? 'ai_generated' : null,
           },
         });
       }
@@ -602,6 +608,9 @@ export class PdfService {
             confidence: d.confidence,
             source: d.source,
           })),
+          // Step-by-step answer (if available)
+          stepByStepAnswer: part.stepByStepAnswer,
+          answerSource: part.answerSource,
           // Metadata
           chapter: q.chapter,
           topic: q.topic,
@@ -939,5 +948,222 @@ export class PdfService {
 
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
     return availableQuestions[randomIndex];
+  }
+
+  /**
+   * Process answers PDF for a job
+   */
+  async processAnswersPdf(jobId: string, file: Express.Multer.File, paperSection?: string): Promise<any> {
+    try {
+      this.logger.log(`Processing answers PDF for job ${jobId}: ${file.originalname}${paperSection ? ` (${paperSection})` : ''}`);
+
+      // Execute Python script to process answers
+      const pythonScriptPath = this.configService.get('PYTHON_SCRIPT_PATH');
+      const pythonScriptDir = path.dirname(pythonScriptPath);
+      const answersScriptPath = path.join(pythonScriptDir, 'process_answers_pdf.py');
+
+      this.logger.log(`Executing Python answers processor: ${answersScriptPath}`);
+
+      // Execute Python script
+      const { spawn } = require('child_process');
+      const python = spawn('python3', [answersScriptPath, file.path, '5']);
+
+      let stdout = '';
+      let stderr = '';
+
+      python.stdout.on('data', (data) => {
+        const output = data.toString();
+        stdout += output;
+        this.logger.log(output.trim());
+      });
+
+      python.stderr.on('data', (data) => {
+        stderr += data.toString();
+      });
+
+      await new Promise((resolve, reject) => {
+        python.on('close', (code) => {
+          if (code !== 0) {
+            this.logger.error(`Python script failed with code ${code}`);
+            this.logger.error(stderr);
+            reject(new Error(`Answer processing failed: ${stderr}`));
+          } else {
+            this.logger.log('Python answer processing completed successfully');
+            resolve(null);
+          }
+        });
+      });
+
+      // Load parsed answers
+      const answersData = this.answerLinkingService.loadParsedAnswers(pythonScriptDir);
+
+      this.logger.log(`Loaded ${answersData.answers.length} answers from parsed file`);
+
+      // Link answers to questions (with optional paper section filter)
+      const result = await this.answerLinkingService.linkAnswersToQuestions(
+        jobId,
+        answersData,
+        paperSection,
+      );
+
+      this.logger.log(`Answer linking complete: ${result.linked} linked, ${result.failed} failed, ${result.aiGenerated} AI-generated`);
+
+      return {
+        jobId,
+        filename: file.originalname,
+        status: 'completed',
+        totalAnswers: answersData.answers.length,
+        linked: result.linked,
+        failed: result.failed,
+        aiGenerated: result.aiGenerated,
+        papers: (answersData.document_info as any).papers || [],
+        message: 'Answers processed and linked successfully',
+      };
+    } catch (error) {
+      this.logger.error(`Failed to process answers PDF: ${error.message}`);
+      throw error;
+    }
+  }
+
+  /**
+   * Get answer status for a job
+   */
+  async getAnswersStatus(jobId: string): Promise<any> {
+    const job = await this.prisma.processingJob.findUnique({
+      where: { jobId },
+    });
+
+    if (!job) {
+      return null;
+    }
+
+    // Count parts with answers
+    const totalParts = await this.prisma.questionPart.count({
+      where: {
+        question: { jobId },
+      },
+    });
+
+    const partsWithAnswers = await this.prisma.questionPart.count({
+      where: {
+        question: { jobId },
+        stepByStepAnswer: { not: null },
+      },
+    });
+
+    const officialAnswers = await this.prisma.questionPart.count({
+      where: {
+        question: { jobId },
+        answerSource: 'official_pdf',
+      },
+    });
+
+    const aiAnswers = await this.prisma.questionPart.count({
+      where: {
+        question: { jobId },
+        answerSource: 'ai_generated',
+      },
+    });
+
+    const coverage = totalParts > 0 ? (partsWithAnswers / totalParts) * 100 : 0;
+
+    return {
+      jobId,
+      hasAnswers: partsWithAnswers > 0,
+      totalParts,
+      partsWithAnswers,
+      officialAnswers,
+      aiAnswers,
+      coverage: Math.round(coverage * 10) / 10, // Round to 1 decimal
+    };
+  }
+
+  /**
+   * Generate AI answer for a specific question part
+   */
+  async generateAiAnswerForPart(questionId: string, partId: string): Promise<{ answer: string }> {
+    // Get the question part with question data
+    const part = await this.prisma.questionPart.findUnique({
+      where: { id: partId },
+      include: { question: true },
+    });
+
+    if (!part) {
+      throw new Error('Question part not found');
+    }
+
+    // Generate AI answer using Gemini
+    const answer = await this.geminiAnswerService.generateStepByStepAnswer(
+      part.question.questionText,
+      part.sampleAnswer || undefined,
+      part.explanation || undefined,
+      part.hints || undefined,
+    );
+
+    // Update the question part with AI answer
+    await this.prisma.questionPart.update({
+      where: { id: partId },
+      data: {
+        stepByStepAnswer: answer,
+        answerSource: 'ai_generated',
+      },
+    });
+
+    this.logger.log(`Generated AI answer for part ${partId}`);
+
+    return { answer };
+  }
+
+  /**
+   * Bulk generate AI answers for all question parts in a job without answers
+   */
+  async bulkGenerateAiAnswers(jobId: string): Promise<{ generated: number; failed: number }> {
+    this.logger.log(`Starting bulk AI answer generation for job ${jobId}`);
+
+    // Get all question parts without step-by-step answers
+    const partsWithoutAnswers = await this.prisma.questionPart.findMany({
+      where: {
+        question: { jobId },
+        stepByStepAnswer: null,
+      },
+      include: { question: true },
+    });
+
+    this.logger.log(`Found ${partsWithoutAnswers.length} parts without answers`);
+
+    let generated = 0;
+    let failed = 0;
+
+    for (const part of partsWithoutAnswers) {
+      try {
+        const answer = await this.geminiAnswerService.generateStepByStepAnswer(
+          part.question.questionText,
+          part.sampleAnswer || undefined,
+          part.explanation || undefined,
+          part.hints || undefined,
+        );
+
+        await this.prisma.questionPart.update({
+          where: { id: part.id },
+          data: {
+            stepByStepAnswer: answer,
+            answerSource: 'ai_generated',
+          },
+        });
+
+        generated++;
+        this.logger.log(`Generated AI answer for part ${part.id} (${generated}/${partsWithoutAnswers.length})`);
+
+        // Add delay to avoid rate limiting (10 requests/minute = 1 request per 6 seconds)
+        await new Promise(resolve => setTimeout(resolve, 7000));
+      } catch (error) {
+        this.logger.error(`Failed to generate AI answer for part ${part.id}: ${error.message}`);
+        failed++;
+      }
+    }
+
+    this.logger.log(`Bulk generation complete: ${generated} generated, ${failed} failed`);
+
+    return { generated, failed };
   }
 }
