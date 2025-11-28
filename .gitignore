@@ -53,3 +53,6 @@ venv/
 __pycache__/
 *.pyc
 pdf-processor/output/
+*.png
+temp/
+tmp/

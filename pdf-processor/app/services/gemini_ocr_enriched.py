@@ -9,6 +9,7 @@ import io
 import numpy as np
 from typing import Optional
 import json
+import ast
 from pathlib import Path
 
 
@@ -231,7 +232,29 @@ Return JSON with this EXACT structure:
                     result = result[4:]
                 result = result.strip()
             
-            data = json.loads(result, strict=False)
+            try:
+                data = json.loads(result, strict=False)
+            except json.JSONDecodeError as e:
+                print(f"    ⚠ JSON Decode Error: {str(e)} - Trying fallback parsing...", flush=True)
+                try:
+                    # Fix common LLM JSON errors
+                    # 1. Replace single quotes with double quotes (risky but worth a try if ast fails)
+                    # 2. Handle Python-style booleans/None if using ast.literal_eval
+                    
+                    # Try ast.literal_eval which handles single quotes and Python syntax
+                    # First convert JSON null/true/false to Python None/True/False
+                    python_style = result.replace('null', 'None').replace('true', 'True').replace('false', 'False')
+                    data = ast.literal_eval(python_style)
+                    print(f"    ✓ Fallback parsing successful using ast.literal_eval!", flush=True)
+                except Exception as e2:
+                    print(f"    ❌ Fallback parsing failed: {str(e2)}", flush=True)
+                    # Last ditch effort: regex cleanup for trailing commas
+                    try:
+                        clean_json = re.sub(r',\s*([\]}])', r'\1', result)
+                        data = json.loads(clean_json, strict=False)
+                        print(f"    ✓ Fallback parsing successful using regex cleanup!", flush=True)
+                    except Exception as e3:
+                        raise e # Re-raise original error if all fallbacks fail
             
             # Map results back to page numbers
             # IMPORTANT: Gemini always returns page_number:1, so we need to map using our input page numbers
