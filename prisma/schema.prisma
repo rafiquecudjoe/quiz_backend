@@ -153,11 +153,20 @@ model QuizAttempt {
   score           Int?
   totalMarks      Int
   
+  // Timing data
+  questionTimings Json?    // {questionId: {startedAt: ISO, answeredAt: ISO, durationSeconds: number}}
+  
   // Metadata
   startedAt       DateTime @default(now())
   completedAt     DateTime?
   duration        Int?     // Seconds
   
+  // Status tracking
+  status          String   @default("in_progress") // "in_progress", "completed", "abandoned"
+  lastActivityAt  DateTime? @default(now())
+  
   @@map("quiz_attempts")
   @@index([userEmail])
+  @@index([status])
+  @@index([completedAt])
 }

@@ -24,7 +24,7 @@ class GeminiOCREnriched:
             api_key: Google Gemini API key
         """
         genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
     
     def extract_enriched_batch_quiz(
         self, 

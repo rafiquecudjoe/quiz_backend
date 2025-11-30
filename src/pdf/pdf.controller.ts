@@ -165,9 +165,11 @@ export class PdfController {
       userEmail: string;
       questionIds: string[];
       answers: Record<string, string>;
+      questionTimings?: Record<string, { startedAt: string; answeredAt: string; durationSeconds: number }>;
+      startedAt?: string;
     },
   ) {
-    const { userName, userEmail, questionIds, answers } = body;
+    const { userName, userEmail, questionIds, answers, questionTimings, startedAt } = body;
 
     if (!userName || !userEmail || !questionIds || !answers) {
       throw new HttpException(
@@ -181,6 +183,8 @@ export class PdfController {
       userEmail,
       questionIds,
       answers,
+      questionTimings,
+      startedAt,
     );
   }
 
@@ -360,17 +364,29 @@ export class PdfController {
   }
 
   /**
+   * Start quiz
+   * POST /pdf/quiz/start
+   */
+  @Post('quiz/start')
+  async startQuiz(@Body() body: { userName?: string; userEmail?: string }) {
+    return this.pdfService.startQuizAttempt(body.userName, body.userEmail);
+  }
+
+  /**
    * Submit quiz
    * POST /pdf/quiz/submit
    */
   @Post('quiz/submit')
   async submitQuiz(@Body() submitQuizDto: SubmitQuizDto) {
-    const { userName, userEmail, questionIds, answers } = submitQuizDto;
+    const { userName, userEmail, questionIds, answers, attemptId, questionTimings, startedAt } = submitQuizDto;
     return this.pdfService.submitQuizAttempt(
       userName,
       userEmail,
       questionIds,
       answers,
+      questionTimings,
+      startedAt,
+      attemptId,
     );
   }
 
@@ -435,6 +451,15 @@ export class PdfController {
       message: 'Email test completed',
       result,
     };
+  }
+
+  /**
+   * Get quiz analytics
+   * GET /pdf/analytics
+   */
+  @Get('analytics')
+  async getAnalytics() {
+    return await this.pdfService.getQuizAnalytics();
   }
 }
 
