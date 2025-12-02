@@ -1022,7 +1022,17 @@ export class PdfService {
     );
 
     if (availableQuestions.length === 0) {
-      // All questions have been used
+      // If no unused questions are available, try to find ANY easy question (allow repeats)
+      const anyEasyQuestions = allQuestions.questions.filter(
+        (q) => q.difficulty?.toLowerCase() === 'easy',
+      );
+
+      if (anyEasyQuestions.length > 0) {
+        const randomIndex = Math.floor(Math.random() * anyEasyQuestions.length);
+        return anyEasyQuestions[randomIndex];
+      }
+
+      // No easy questions exist at all
       return null;
     }
 
