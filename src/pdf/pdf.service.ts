@@ -1779,10 +1779,22 @@ export class PdfService {
    * Update question difficulty
    */
   async updateQuestionDifficulty(questionId: string, difficulty: string): Promise<any> {
+    this.logger.log(`Attempting to update question ${questionId} difficulty to ${difficulty}`);
+
     // Validate difficulty value
     const validDifficulties = ['easy', 'medium', 'hard'];
     if (!validDifficulties.includes(difficulty.toLowerCase())) {
       throw new Error('Invalid difficulty. Must be easy, medium, or hard');
+    }
+
+    // Check if question exists first
+    const existingQuestion = await this.prisma.question.findUnique({
+      where: { id: questionId },
+    });
+
+    if (!existingQuestion) {
+      this.logger.error(`Question not found with ID: ${questionId}`);
+      throw new Error(`Question not found with ID: ${questionId}`);
     }
 
     const question = await this.prisma.question.update({
@@ -1790,7 +1802,7 @@ export class PdfService {
       data: { difficulty: difficulty.toLowerCase() },
     });
 
-    this.logger.log(`Updated question ${questionId} difficulty to ${difficulty}`);
+    this.logger.log(`✅ Updated question ${questionId} difficulty to ${difficulty}`);
 
     return {
       success: true,
