@@ -1739,11 +1739,30 @@ export class PdfService {
       throw new Error('Job not found');
     }
 
-    // Delete all questions associated with this job
-    // Prisma cascade delete should handle parts and diagrams if configured,
-    // but we'll do it explicitly to be safe and ensure MinIO cleanup if needed (though MinIO cleanup is complex without tracking keys)
+    // MongoDB doesn't handle cascade deletes well in concurrent scenarios
+    // Delete related records manually to avoid write conflicts
 
-    // For now, we rely on Prisma's cascade delete for database records
+    // First, get all questions for this job
+    const questions = await this.prisma.question.findMany({
+      where: { jobId },
+      select: { id: true },
+    });
+
+    this.logger.log(`Deleting ${questions.length} questions for job ${jobId}`);
+
+    // Delete all questions (this will cascade to parts and diagrams via Prisma)
+    // Do this in batches to avoid overwhelming the database
+    const batchSize = 10;
+    for (let i = 0; i < questions.length; i += batchSize) {
+      const batch = questions.slice(i, i + batchSize);
+      await this.prisma.question.deleteMany({
+        where: {
+          id: { in: batch.map(q => q.id) },
+        },
+      });
+    }
+
+    // Now delete the job itself
     await this.prisma.processingJob.delete({
       where: { jobId },
     });
