@@ -408,7 +408,13 @@ export class PdfController {
       throw new HttpException('Job ID is required', HttpStatus.BAD_REQUEST);
     }
     const excludedIds = excludeIds ? excludeIds.split(',') : [];
-    return this.pdfService.getReplacementQuestion(jobId, excludedIds);
+    const question = await this.pdfService.getReplacementQuestion(jobId, excludedIds);
+
+    if (!question) {
+      throw new HttpException('No replacement question available', HttpStatus.NOT_FOUND);
+    }
+
+    return question;
   }
   /**
    * Test email service directly
