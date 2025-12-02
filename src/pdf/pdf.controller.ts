@@ -367,7 +367,7 @@ export class PdfController {
       actualJobId,
       countNum,
       minConf,
-      'easy', // Force easy difficulty as requested
+      undefined, // Allow all difficulties (was: 'easy')
       topic,
     );
 
