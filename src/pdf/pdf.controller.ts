@@ -14,6 +14,7 @@ import {
   Logger,
   BadRequestException,
   Res,
+  Patch,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PdfService } from './pdf.service';
@@ -353,7 +354,7 @@ export class PdfController {
       actualJobId,
       countNum,
       minConf,
-      difficulty,
+      'easy', // Force easy difficulty as requested
       topic,
     );
 
@@ -579,6 +580,14 @@ export class PdfController {
 
     const stream = fs.createReadStream(pdfPath);
     stream.pipe(res);
+  }
+
+  @Patch('question-part/:partId/answer')
+  async updateQuestionAnswer(
+    @Param('partId') partId: string,
+    @Body() body: { options?: any[]; correctOption?: number | string; sampleAnswer?: string },
+  ) {
+    return this.pdfService.updateQuestionAnswer(partId, body.options, body.correctOption, body.sampleAnswer);
   }
 }
 

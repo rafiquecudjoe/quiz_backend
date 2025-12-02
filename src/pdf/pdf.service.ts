@@ -1653,4 +1653,63 @@ export class PdfService {
       },
     };
   }
+
+  /**
+   * Update question part options, correct answer, or sample answer
+   */
+  async updateQuestionAnswer(
+    partId: string,
+    options?: any[],
+    correctOption?: number | string,
+    sampleAnswer?: string,
+  ): Promise<any> {
+    // Convert string correctOption (like "B") to index if needed
+    let correctOptionIndex = correctOption;
+    if (typeof correctOption === 'string' && options) {
+      correctOptionIndex = options.findIndex(opt => opt.label === correctOption);
+      if (correctOptionIndex === -1) {
+        correctOptionIndex = correctOption; // Keep as-is if not found
+      }
+    }
+
+    const dataToUpdate: any = {};
+
+    if (options !== undefined) {
+      dataToUpdate.options = options && options.length > 0 ? options : null;
+    }
+
+    if (correctOption !== undefined) {
+      dataToUpdate.correctOption = typeof correctOptionIndex === 'number' ? correctOptionIndex : null;
+    }
+
+    if (sampleAnswer !== undefined) {
+      dataToUpdate.sampleAnswer = sampleAnswer;
+    }
+
+    const updated = await this.prisma.questionPart.update({
+      where: { id: partId },
+      data: dataToUpdate,
+      include: {
+        question: {
+          select: {
+            questionNum: true,
+            topic: true,
+          },
+        },
+      },
+    });
+
+    this.logger.log(
+      `✅ Updated answer details for question part ${partId} (Q${updated.question.questionNum})`,
+    );
+
+    return {
+      success: true,
+      partId: updated.id,
+      options: updated.options,
+      correctOption: updated.correctOption,
+      sampleAnswer: updated.sampleAnswer,
+      question: updated.question,
+    };
+  }
 }
