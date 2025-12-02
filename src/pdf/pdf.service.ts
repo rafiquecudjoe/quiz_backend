@@ -603,6 +603,7 @@ export class PdfService {
           hasImage: filteredDiagrams.length > 0,
           isExcluded: part.isExcluded,
           diagrams: filteredDiagrams.map((d) => ({
+            id: d.id,
             url: d.minioUrl,
             fileName: d.fileName,
             confidence: d.confidence,
@@ -612,6 +613,7 @@ export class PdfService {
           stepByStepAnswer: part.stepByStepAnswer,
           answerSource: part.answerSource,
           // Metadata
+          pageNumber: q.pageNumber,
           chapter: q.chapter,
           topic: q.topic,
           schoolLevel: q.schoolLevel,
@@ -950,6 +952,14 @@ export class PdfService {
       return null;
     }
 
+    // Generate a signed URL for the original PDF if it exists
+    let pdfUrl = null;
+    if (job.originalPath && fs.existsSync(job.originalPath)) {
+      // Upload to MinIO temporarily or serve directly
+      // For now, you can serve it via a static endpoint
+      pdfUrl = `/api/pdf/download/${jobId}`;
+    }
+
     return {
       jobId: job.jobId,
       filename: job.filename,
@@ -961,6 +971,7 @@ export class PdfService {
       errorMessage: job.errorMessage,
       createdAt: job.createdAt,
       updatedAt: job.updatedAt,
+      pdfUrl, // Original PDF URL for cropping
     };
   }
 
@@ -980,6 +991,18 @@ export class PdfService {
     });
 
     return { jobs };
+  }
+
+  async getJobWithOriginalPath(jobId: string): Promise<any> {
+    return await this.prisma.processingJob.findUnique({
+      where: { jobId },
+      select: {
+        jobId: true,
+        filename: true,
+        originalPath: true,
+        status: true,
+      },
+    });
   }
 
   /**
@@ -1401,5 +1424,233 @@ export class PdfService {
       }))
       .sort((a, b) => b.avgPercentage - a.avgPercentage)
       .slice(0, 10); // Top 10 users
+  }
+
+  /**
+   * Get all diagrams for a job with their questions
+   */
+  async getDiagramsForJob(jobId: string): Promise<any> {
+    const diagrams = await this.prisma.diagram.findMany({
+      where: {
+        question: {
+          jobId,
+        },
+      },
+      include: {
+        question: {
+          select: {
+            id: true,
+            questionNum: true,
+            questionText: true,
+            topic: true,
+            pageNumber: true,
+          },
+        },
+      },
+      orderBy: [
+        { question: { pageNumber: 'asc' } },
+        { pageNumber: 'asc' },
+      ],
+    });
+
+    return {
+      jobId,
+      totalDiagrams: diagrams.length,
+      diagrams: diagrams.map(d => ({
+        id: d.id,
+        fileName: d.fileName,
+        minioUrl: d.minioUrl,
+        confidence: d.confidence,
+        source: d.source,
+        pageNumber: d.pageNumber,
+        question: {
+          id: d.question.id,
+          questionNum: d.question.questionNum,
+          questionText: d.question.questionText.substring(0, 100) + '...',
+          topic: d.question.topic,
+          pageNumber: d.question.pageNumber,
+        },
+      })),
+    };
+  }
+
+  /**
+   * Replace a diagram with a manually cropped version
+   */
+  async replaceDiagram(
+    diagramId: string,
+    file: Express.Multer.File,
+  ): Promise<any> {
+    this.logger.log(`Replacing diagram ${diagramId} with file: ${file?.originalname} (${file?.size} bytes)`);
+
+    const diagram = await this.prisma.diagram.findUnique({
+      where: { id: diagramId },
+      include: {
+        question: {
+          select: { jobId: true },
+        },
+      },
+    });
+
+    if (!diagram) {
+      throw new Error('Diagram not found');
+    }
+
+    // Upload new diagram to MinIO
+    const uploadResult = await this.minioService.uploadDiagram(
+      diagram.question.jobId,
+      file.path,
+      diagram.pageNumber,
+      Date.now(), // Use timestamp as index for uniqueness
+    );
+
+    // Update database with new diagram URL
+    const updated = await this.prisma.diagram.update({
+      where: { id: diagramId },
+      data: {
+        minioUrl: uploadResult.url,
+        minioKey: uploadResult.key,
+        fileName: uploadResult.key,
+        fileSize: file.size,
+        source: 'manual_crop',
+        confidence: 100, // Manual crops are 100% confidence
+      },
+    });
+
+    // Clean up uploaded file
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+
+    this.logger.log(`✅ Replaced diagram ${diagramId} with manual crop`);
+
+    return {
+      success: true,
+      diagram: {
+        id: updated.id,
+        fileName: updated.fileName,
+        minioUrl: updated.minioUrl,
+        confidence: updated.confidence,
+        source: updated.source,
+      },
+    };
+  }
+
+  /**
+   * Delete a diagram
+   */
+  async deleteDiagram(diagramId: string): Promise<any> {
+    const diagram = await this.prisma.diagram.findUnique({
+      where: { id: diagramId },
+    });
+
+    if (!diagram) {
+      throw new Error('Diagram not found');
+    }
+
+    await this.prisma.diagram.delete({
+      where: { id: diagramId },
+    });
+
+    return { success: true, message: 'Diagram deleted successfully' };
+  }
+
+  /**
+   * Add a diagram to a question (via QuestionPart ID)
+   */
+  async addDiagram(questionPartId: string, file: Express.Multer.File): Promise<any> {
+    // Find the question part to get the parent question
+    const part = await this.prisma.questionPart.findUnique({
+      where: { id: questionPartId },
+      include: { question: true },
+    });
+
+    if (!part) {
+      throw new Error('Question not found');
+    }
+
+    const question = part.question;
+
+    // Upload to MinIO
+    const uploadResult = await this.minioService.uploadDiagram(
+      question.jobId,
+      file.path,
+      question.pageNumber,
+      Date.now(),
+    );
+
+    // Create diagram record
+    const diagram = await this.prisma.diagram.create({
+      data: {
+        question: { connect: { id: question.id } },
+        pageNumber: question.pageNumber,
+        minioUrl: uploadResult.url,
+        minioKey: uploadResult.key,
+        fileName: uploadResult.key,
+        contentType: file.mimetype,
+        fileSize: file.size,
+        source: 'manual_upload',
+        confidence: 100,
+      },
+    });
+
+    // Clean up uploaded file
+    if (fs.existsSync(file.path)) {
+      fs.unlinkSync(file.path);
+    }
+
+    return {
+      success: true,
+      diagram: {
+        id: diagram.id,
+        fileName: diagram.fileName,
+        minioUrl: diagram.minioUrl,
+        confidence: diagram.confidence,
+        source: diagram.source,
+      },
+    };
+  }
+  async linkDiagram(questionPartId: string, diagramId: string): Promise<any> {
+    const sourceDiagram = await this.prisma.diagram.findUnique({
+      where: { id: diagramId },
+    });
+
+    if (!sourceDiagram) {
+      throw new Error('Source diagram not found');
+    }
+
+    const part = await this.prisma.questionPart.findUnique({
+      where: { id: questionPartId },
+      include: { question: true },
+    });
+
+    if (!part) {
+      throw new Error('Target question not found');
+    }
+
+    const newDiagram = await this.prisma.diagram.create({
+      data: {
+        question: { connect: { id: part.question.id } },
+        pageNumber: sourceDiagram.pageNumber,
+        minioUrl: sourceDiagram.minioUrl,
+        minioKey: sourceDiagram.minioKey,
+        fileName: sourceDiagram.fileName,
+        contentType: sourceDiagram.contentType,
+        fileSize: sourceDiagram.fileSize,
+        source: 'linked_from_existing',
+        confidence: sourceDiagram.confidence,
+      },
+    });
+
+    return {
+      success: true,
+      diagram: {
+        id: newDiagram.id,
+        fileName: newDiagram.fileName,
+        minioUrl: newDiagram.minioUrl,
+        confidence: newDiagram.confidence,
+        source: newDiagram.source,
+      },
+    };
   }
 }

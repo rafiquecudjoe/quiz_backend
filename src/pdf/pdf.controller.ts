@@ -2,6 +2,7 @@ import {
   Controller,
   Post,
   Get,
+  Delete,
   Body,
   Param,
   Query,
@@ -12,6 +13,7 @@ import {
   HttpStatus,
   Logger,
   BadRequestException,
+  Res,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PdfService } from './pdf.service';
@@ -20,6 +22,8 @@ import { v4 as uuidv4 } from 'uuid';
 import * as path from 'path';
 import { SubmitQuizDto } from './dto/submit-quiz.dto';
 import { ConfigService } from '@nestjs/config';
+import { Response } from 'express';
+import * as fs from 'fs';
 
 @Controller('pdf')
 export class PdfController {
@@ -460,6 +464,121 @@ export class PdfController {
   @Get('analytics')
   async getAnalytics() {
     return await this.pdfService.getQuizAnalytics();
+  }
+
+  @Get('diagrams/:jobId')
+  async getDiagramsForJob(@Param('jobId') jobId: string) {
+    return this.pdfService.getDiagramsForJob(jobId);
+  }
+
+  @Post('diagrams/:diagramId/replace')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueName = `diagram-replace-${uuidv4()}${path.extname(file.originalname)}`;
+          cb(null, uniqueName);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/^image\/(jpg|jpeg|png)$/)) {
+          return cb(
+            new HttpException('Only image files (jpg, jpeg, png) are allowed!', HttpStatus.BAD_REQUEST),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async replaceDiagram(
+    @Param('diagramId') diagramId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+    }
+    return this.pdfService.replaceDiagram(diagramId, file);
+  }
+
+  @Delete('diagrams/:diagramId')
+  async deleteDiagram(@Param('diagramId') diagramId: string) {
+    return this.pdfService.deleteDiagram(diagramId);
+  }
+
+  @Post('questions/:questionId/diagrams')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const uniqueName = `diagram-add-${uuidv4()}${path.extname(file.originalname)}`;
+          cb(null, uniqueName);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.mimetype.match(/^image\/(jpg|jpeg|png)$/)) {
+          return cb(
+            new HttpException('Only image files (jpg, jpeg, png) are allowed!', HttpStatus.BAD_REQUEST),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async addDiagram(
+    @Param('questionId') questionId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+    }
+    return this.pdfService.addDiagram(questionId, file);
+  }
+
+  @Post('questions/:questionId/link-diagram/:diagramId')
+  async linkDiagram(
+    @Param('questionId') questionId: string,
+    @Param('diagramId') diagramId: string,
+  ) {
+    return this.pdfService.linkDiagram(questionId, diagramId);
+  }
+
+  @Get('download/:jobId')
+  async downloadOriginalPdf(
+    @Param('jobId') jobId: string,
+    @Res() res: Response,
+  ) {
+    const job = await this.pdfService.getJobStatus(jobId);
+
+    if (!job) {
+      return res.status(404).json({ error: 'Job not found' });
+    }
+
+    // Get the full job object with originalPath
+    const fullJob = await this.pdfService.getJobWithOriginalPath(jobId);
+
+    if (!fullJob || !fullJob.originalPath) {
+      return res.status(404).json({ error: 'PDF path not found' });
+    }
+
+    // Resolve the path - if it's relative, make it absolute from the project root
+    const pdfPath = path.isAbsolute(fullJob.originalPath)
+      ? fullJob.originalPath
+      : path.join(process.cwd(), fullJob.originalPath);
+
+    if (!fs.existsSync(pdfPath)) {
+      this.logger.error(`PDF file not found at: ${pdfPath}`);
+      return res.status(404).json({ error: 'PDF file not found on server' });
+    }
+
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `inline; filename="${fullJob.filename}"`);
+
+    const stream = fs.createReadStream(pdfPath);
+    stream.pipe(res);
   }
 }
 

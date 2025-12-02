@@ -35,9 +35,7 @@ import { EmailModule } from '../email/email.module';
             },
           }),
           fileFilter: (req, file, callback) => {
-            if (file.mimetype !== 'application/pdf') {
-              return callback(new Error('Only PDF files are allowed!'), false);
-            }
+            // Allow all files by default, let controllers enforce specific types
             callback(null, true);
           },
           limits: {
