@@ -608,6 +608,17 @@ export class PdfController {
   ) {
     return this.pdfService.updateQuestionAnswer(partId, body.options, body.correctOption, body.sampleAnswer);
   }
+
+  @Patch('questions/:questionId/difficulty')
+  async updateQuestionDifficulty(
+    @Param('questionId') questionId: string,
+    @Body() body: { difficulty: string },
+  ) {
+    if (!body.difficulty) {
+      throw new HttpException('Difficulty is required', HttpStatus.BAD_REQUEST);
+    }
+    return this.pdfService.updateQuestionDifficulty(questionId, body.difficulty);
+  }
 }
 
 

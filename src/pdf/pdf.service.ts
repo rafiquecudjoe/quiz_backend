@@ -1774,4 +1774,28 @@ export class PdfService {
       message: `Job ${jobId} deleted successfully`,
     };
   }
+
+  /**
+   * Update question difficulty
+   */
+  async updateQuestionDifficulty(questionId: string, difficulty: string): Promise<any> {
+    // Validate difficulty value
+    const validDifficulties = ['easy', 'medium', 'hard'];
+    if (!validDifficulties.includes(difficulty.toLowerCase())) {
+      throw new Error('Invalid difficulty. Must be easy, medium, or hard');
+    }
+
+    const question = await this.prisma.question.update({
+      where: { id: questionId },
+      data: { difficulty: difficulty.toLowerCase() },
+    });
+
+    this.logger.log(`Updated question ${questionId} difficulty to ${difficulty}`);
+
+    return {
+      success: true,
+      questionId: question.id,
+      difficulty: question.difficulty,
+    };
+  }
 }
