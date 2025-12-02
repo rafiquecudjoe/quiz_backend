@@ -302,7 +302,11 @@ export class PdfService {
     data: EnrichedQuestionData,
     pythonScriptDir: string,
   ): Promise<void> {
+    let qIndex = 0;
     for (const enrichedQ of data.enriched_questions) {
+      qIndex++;
+      const safeQuestionNum = enrichedQ.question_num || `Unknown-${qIndex}`;
+
       // TEMPORARILY DISABLE DUPLICATE CHECK FOR TESTING IMPROVED DIAGRAM DETECTION
       // Check for duplicates based on question content
       // const existingQuestion = await this.prisma.question.findFirst({
@@ -315,7 +319,7 @@ export class PdfService {
       //       },
       //       // Check by question number and topic (for cross-document duplicates)
       //       {
-      //         questionNum: enrichedQ.question_num,
+      //         questionNum: safeQuestionNum,
       //         topic: enrichedQ.topic,
       //         subject: enrichedQ.subject || 'Mathematics',
       //       },
@@ -325,7 +329,7 @@ export class PdfService {
 
       // if (existingQuestion) {
       //   this.logger.warn(
-      //     `Skipping duplicate question ${enrichedQ.question_num} (matches existing question ${existingQuestion.questionNum} from job ${existingQuestion.jobId})`,
+      //     `Skipping duplicate question ${safeQuestionNum} (matches existing question ${existingQuestion.questionNum} from job ${existingQuestion.jobId})`,
       //   );
       //   continue;
       // }
@@ -336,7 +340,7 @@ export class PdfService {
       );
 
       this.logger.log(
-        `Question ${enrichedQ.question_num}: ${filteredDiagrams.length}/${enrichedQ.diagrams.length} diagrams passed confidence filter`,
+        `Question ${safeQuestionNum}: ${filteredDiagrams.length}/${enrichedQ.diagrams.length} diagrams passed confidence filter`,
       );
 
       // Upload diagrams to MinIO
@@ -386,7 +390,7 @@ export class PdfService {
           job: {
             connect: { jobId },
           },
-          questionNum: enrichedQ.question_num,
+          questionNum: safeQuestionNum,
           pageNumber: enrichedQ.page_number,
           questionText: enrichedQ.question_text || 'Question text not available', // Handle null case
           topic: enrichedQ.topic,
