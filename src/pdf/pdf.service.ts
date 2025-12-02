@@ -1018,7 +1018,7 @@ export class PdfService {
     }
 
     const availableQuestions = allQuestions.questions.filter(
-      (q) => !excludeIds.includes(q.id) && q.difficulty === 'easy',
+      (q) => !excludeIds.includes(q.id) && q.difficulty?.toLowerCase() === 'easy',
     );
 
     if (availableQuestions.length === 0) {
