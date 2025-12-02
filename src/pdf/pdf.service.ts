@@ -1022,13 +1022,22 @@ export class PdfService {
     }
 
     const availableQuestions = allQuestions.questions.filter(
-      (q) => !excludeIds.includes(q.id),
+      (q) => !excludeIds.includes(q.id) && q.difficulty?.toLowerCase() === 'easy',
     );
 
     if (availableQuestions.length === 0) {
-      // If no unused questions are available, allow repeats
-      const randomIndex = Math.floor(Math.random() * allQuestions.questions.length);
-      return allQuestions.questions[randomIndex];
+      // If no unused questions are available, try to find ANY easy question (allow repeats)
+      const anyEasyQuestions = allQuestions.questions.filter(
+        (q) => q.difficulty?.toLowerCase() === 'easy',
+      );
+
+      if (anyEasyQuestions.length > 0) {
+        const randomIndex = Math.floor(Math.random() * anyEasyQuestions.length);
+        return anyEasyQuestions[randomIndex];
+      }
+
+      // No easy questions exist at all
+      return null;
     }
 
     const randomIndex = Math.floor(Math.random() * availableQuestions.length);
