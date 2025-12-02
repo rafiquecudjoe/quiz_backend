@@ -72,8 +72,7 @@ ENV PATH="/app/venv/bin:$PATH"
 
 # Install Python dependencies
 RUN /app/venv/bin/pip install --upgrade pip && \
-    /app/venv/bin/pip install -r ./pdf-processor/requirements.txt && \
-    /app/venv/bin/pip install google-generativeai
+    /app/venv/bin/pip install -r ./pdf-processor/requirements.txt
 
 # Create directories for uploads and output
 RUN mkdir -p /app/uploads /app/output

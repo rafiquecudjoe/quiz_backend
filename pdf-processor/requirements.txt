@@ -1,7 +1,4 @@
 # Core Framework
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
-python-multipart==0.0.6
 pydantic==2.5.3
 pydantic-settings==2.1.0
 
@@ -19,11 +16,7 @@ pytesseract==0.3.13
 
 # AI Integration
 openai==1.10.0
-httpx==0.26.0
 google-generativeai==0.8.5
-ultralytics==8.1.0
-huggingface_hub==0.20.3
 
 # Utilities
 python-dotenv==1.0.0
-aiofiles==23.2.1
