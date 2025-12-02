@@ -95,6 +95,19 @@ export class PdfController {
   }
 
   /**
+   * Delete a job
+   * DELETE /pdf/jobs/:jobId
+   */
+  @Delete('jobs/:jobId')
+  async deleteJob(@Param('jobId') jobId: string) {
+    try {
+      return await this.pdfService.deleteJob(jobId);
+    } catch (error) {
+      throw new HttpException(error.message, HttpStatus.NOT_FOUND);
+    }
+  }
+
+  /**
    * Get all quiz questions for a job (transformed for frontend)
    * GET /pdf/jobs/:jobId/questions
    * Query params:
