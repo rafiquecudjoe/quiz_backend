@@ -279,7 +279,6 @@ def enriched_batch_process_pdf(pdf_path: str, batch_size: int = 5):
                         if page_snapshot.exists():
                             try:
                                 from PIL import Image
-                                import json
                                 
                                 # Ask Gemini to locate the diagram
                                 print(f"      🤖 Using Gemini to locate diagram on page {actual_page_num}...")

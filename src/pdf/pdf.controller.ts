@@ -607,9 +607,9 @@ export class PdfController {
   @Patch('question-part/:partId/answer')
   async updateQuestionAnswer(
     @Param('partId') partId: string,
-    @Body() body: { options?: any[]; correctOption?: number | string; sampleAnswer?: string },
+    @Body() body: { options?: any[]; correctOption?: number | string; sampleAnswer?: string; stepByStepAnswer?: string },
   ) {
-    return this.pdfService.updateQuestionAnswer(partId, body.options, body.correctOption, body.sampleAnswer);
+    return this.pdfService.updateQuestionAnswer(partId, body.options, body.correctOption, body.sampleAnswer, body.stepByStepAnswer);
   }
 
   @Patch('questions/:questionId/difficulty')

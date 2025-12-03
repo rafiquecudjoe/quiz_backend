@@ -1721,6 +1721,7 @@ export class PdfService {
     options?: any[],
     correctOption?: number | string,
     sampleAnswer?: string,
+    stepByStepAnswer?: string,
   ): Promise<any> {
     // Convert string correctOption (like "B") to index if needed
     let correctOptionIndex = correctOption;
@@ -1743,6 +1744,10 @@ export class PdfService {
 
     if (sampleAnswer !== undefined) {
       dataToUpdate.sampleAnswer = sampleAnswer;
+    }
+
+    if (stepByStepAnswer !== undefined) {
+      dataToUpdate.stepByStepAnswer = stepByStepAnswer;
     }
 
     const updated = await this.prisma.questionPart.update({
@@ -1768,6 +1773,7 @@ export class PdfService {
       options: updated.options,
       correctOption: updated.correctOption,
       sampleAnswer: updated.sampleAnswer,
+      stepByStepAnswer: updated.stepByStepAnswer,
       question: updated.question,
     };
   }
