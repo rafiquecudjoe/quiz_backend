@@ -647,6 +647,7 @@ export class PdfService {
     minConfidence?: number,
     difficulty?: string,
     topic?: string,
+    userEmail?: string,
   ): Promise<any> {
     // Never include excluded questions in random quiz
     const result = await this.getQuizQuestions(jobId, minConfidence, false);
@@ -655,8 +656,33 @@ export class PdfService {
       return null;
     }
 
+    // Get previously seen question IDs for this user
+    let previouslySeenIds: string[] = [];
+    if (userEmail) {
+      const previousAttempts = await this.prisma.quizAttempt.findMany({
+        where: {
+          userEmail,
+          status: 'completed', // Only count completed quizzes
+        },
+        select: {
+          questionIds: true,
+        },
+      });
+
+      // Flatten all question IDs from all attempts
+      previouslySeenIds = previousAttempts.flatMap(attempt => attempt.questionIds);
+
+      this.logger.log(`User ${userEmail} has seen ${previouslySeenIds.length} questions previously`);
+    }
+
     // Apply filters
     let filtered = result.questions;
+
+    // Exclude previously seen questions
+    if (previouslySeenIds.length > 0) {
+      filtered = filtered.filter(q => !previouslySeenIds.includes(q.id));
+      this.logger.log(`After excluding seen questions: ${filtered.length} available`);
+    }
 
     if (difficulty) {
       filtered = filtered.filter(
@@ -668,6 +694,24 @@ export class PdfService {
       filtered = filtered.filter(
         (q) => q.topic.toLowerCase().includes(topic.toLowerCase()),
       );
+    }
+
+    // If all questions have been seen, reset and use all questions
+    if (filtered.length === 0 && previouslySeenIds.length > 0) {
+      this.logger.log(`User has seen all questions - allowing repeats`);
+      filtered = result.questions;
+
+      // Reapply difficulty/topic filters
+      if (difficulty) {
+        filtered = filtered.filter(
+          (q) => q.difficulty.toLowerCase() === difficulty.toLowerCase(),
+        );
+      }
+      if (topic) {
+        filtered = filtered.filter(
+          (q) => q.topic.toLowerCase().includes(topic.toLowerCase()),
+        );
+      }
     }
 
     // Shuffle and select random questions
@@ -696,6 +740,7 @@ export class PdfService {
       filteredCount: filtered.length,
       selectedCount: selected.length,
       questions: selected,
+      previouslySeenCount: previouslySeenIds.length,
     };
   }
 

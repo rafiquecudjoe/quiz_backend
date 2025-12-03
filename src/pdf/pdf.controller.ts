@@ -328,6 +328,7 @@ export class PdfController {
    *   - minConfidence: Minimum diagram confidence (default 90)
    *   - difficulty: Filter by difficulty (easy, medium, hard - optional)
    *   - topic: Filter by topic (optional)
+   *   - userEmail: User email to track question history (optional)
    */
   @Get('quiz/questions')
   async getQuizQuestionsForFrontend(
@@ -336,6 +337,7 @@ export class PdfController {
     @Query('minConfidence') minConfidence?: string,
     @Query('difficulty') difficulty?: string,
     @Query('topic') topic?: string,
+    @Query('userEmail') userEmail?: string,
   ) {
     const countNum = count ? parseInt(count, 10) : 5;
     const minConf = minConfidence ? parseFloat(minConfidence) : 90;
@@ -369,6 +371,7 @@ export class PdfController {
       minConf,
       undefined, // Show all difficulties
       topic,
+      userEmail, // Pass userEmail to track history
     );
 
     if (!questions) {
@@ -382,9 +385,9 @@ export class PdfController {
   }
 
   /**
-   * Start quiz
-   * POST /pdf/quiz/start
-   */
+ * Start quiz
+ * POST /pdf/quiz/start
+ */
   @Post('quiz/start')
   async startQuiz(@Body() body: { userName?: string; userEmail?: string }) {
     return this.pdfService.startQuizAttempt(body.userName, body.userEmail);
