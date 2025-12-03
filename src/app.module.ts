@@ -6,7 +6,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { MinioModule } from './minio/minio.module';
 import { PdfModule } from './pdf/pdf.module';
 import { EmailModule } from './email/email.module';
-import * as path from 'path';
+import { QueueModule } from './queue/queue.module';
 
 @Module({
   imports: [
@@ -17,6 +17,7 @@ import * as path from 'path';
     MinioModule,
     EmailModule,
     PdfModule,
+    QueueModule,
   ],
   controllers: [AppController],
   providers: [AppService],

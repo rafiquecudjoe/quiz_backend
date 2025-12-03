@@ -140,29 +140,42 @@ export class QuizAnalysisService {
 
     this.logger.log(`Analyzing ${wrongAnswers.length} wrong answers and ${correctAnswers.length} correct answers`);
 
-    // 1. For WRONG answers: Find 2 questions on next level
+    // 1. For WRONG answers: Find 2 questions on same topic (ANY difficulty, NO images)
     for (const wrong of wrongAnswers) {
-      const nextDifficultyLevel = this.getNextDifficultyLevel(wrong.difficulty);
       let questionsFound = 0;
       const targetCount = 2;
 
-      // Try to find questions at next level on same topic
+      // Try to find questions on same topic, ANY difficulty, NO diagrams
+      // We need to check for diagrams, so we include them in the query
       let practiceQs = await this.prisma.question.findMany({
         where: {
           topic: wrong.topic,
-          difficulty: { in: nextDifficultyLevel },
           id: { notIn: allQuizQuestionIds },
         },
-        include: { parts: true },
-        take: targetCount,
+        include: {
+          parts: true,
+          diagrams: true
+        },
+        // Take more than needed to filter in memory
+        take: 20,
       });
 
-      // Add found questions
-      if (practiceQs.length > 0) {
-        this.logger.log(`Found ${practiceQs.length} practice questions in DB for ${wrong.topic}`);
+      // Filter out questions with diagrams
+      const validPracticeQs = practiceQs.filter(q => q.diagrams.length === 0);
+
+      if (validPracticeQs.length > 0) {
+        this.logger.log(`Found ${validPracticeQs.length} valid practice questions (no images) in DB for ${wrong.topic}`);
+      } else {
+        this.logger.log(`No valid practice questions (no images) found in DB for ${wrong.topic}`);
       }
 
-      for (const pq of practiceQs) {
+      for (const pq of validPracticeQs) {
+        // Skip if we already have enough for this wrong answer
+        if (questionsFound >= targetCount) break;
+
+        // Check if we already used this question in this practice set
+        if (practiceQuestions.some(p => p.id === pq.parts[0]?.id)) continue;
+
         for (const part of pq.parts) {
           if (questionsFound < targetCount) {
             practiceQuestions.push({
@@ -170,11 +183,13 @@ export class QuizAnalysisService {
               topic: pq.topic,
               text: part.questionText,
               difficulty: pq.difficulty,
-              level: 'next_level',
+              level: 'next_level', // Just label it next level for now
               marks: part.marks,
               explanation: part.explanation,
             });
             questionsFound++;
+            // Mark as used for this run
+            allQuizQuestionIds.push(pq.id);
           }
         }
       }
@@ -192,7 +207,7 @@ export class QuizAnalysisService {
       }
     }
 
-    // 2. For CORRECT answers: Find 1 question on same level
+    // 2. For CORRECT answers: Find 1 question on same topic (ANY difficulty, NO images)
     for (const correctId of correctAnswers) {
       const part = await this.prisma.questionPart.findUnique({
         where: { id: correctId },
@@ -207,14 +222,22 @@ export class QuizAnalysisService {
       let practiceQs = await this.prisma.question.findMany({
         where: {
           topic: part.question.topic,
-          difficulty: part.question.difficulty,
           id: { notIn: allQuizQuestionIds },
         },
-        include: { parts: true },
-        take: targetCount,
+        include: {
+          parts: true,
+          diagrams: true
+        },
+        take: 10,
       });
 
-      for (const pq of practiceQs) {
+      // Filter out questions with diagrams
+      const validPracticeQs = practiceQs.filter(q => q.diagrams.length === 0);
+
+      for (const pq of validPracticeQs) {
+        if (questionsFound >= targetCount) break;
+        if (practiceQuestions.some(p => p.id === pq.parts[0]?.id)) continue;
+
         for (const p of pq.parts) {
           if (questionsFound < targetCount) {
             practiceQuestions.push({
@@ -227,18 +250,13 @@ export class QuizAnalysisService {
               explanation: p.explanation,
             });
             questionsFound++;
+            allQuizQuestionIds.push(pq.id);
           }
         }
       }
 
-      // If not enough, use Gemini Fallback (but for same level)
+      // If not enough, use Gemini Fallback
       if (questionsFound < targetCount) {
-        // We reuse generateFallbackPracticeQuestions but we need to trick it to generate same level
-        // Since generateFallbackPracticeQuestions uses getNextDifficultyLevel, we can pass a "lower" difficulty
-        // to get the "current" difficulty back. Or better, we just accept next level for practice anyway.
-        // For simplicity, we'll let it generate "next level" (harder) practice even for correct answers,
-        // as that's good for growth.
-
         const needed = targetCount - questionsFound;
         const mockWrongAnswer: WrongAnswer = {
           questionId: part.id,
@@ -249,7 +267,6 @@ export class QuizAnalysisService {
         };
 
         const aiQuestions = await this.generateFallbackPracticeQuestions([mockWrongAnswer], needed);
-        // Adjust level label
         aiQuestions.forEach(q => q.level = 'same_level');
 
         practiceQuestions.push(...aiQuestions);

@@ -8,6 +8,7 @@ import { PdfGeneratorService } from './pdf-generator.service';
 import { QuizAnalysisService } from './quiz-analysis.service';
 import { AnswerLinkingService } from './answer-linking.service';
 import { GeminiAnswerService } from './gemini-answer.service';
+import { QueueService } from '../queue/queue.service';
 
 import * as fs from 'fs';
 import * as path from 'path';
@@ -87,6 +88,7 @@ export class PdfService {
     private readonly quizAnalysis: QuizAnalysisService,
     private readonly answerLinkingService: AnswerLinkingService,
     private readonly geminiAnswerService: GeminiAnswerService,
+    private readonly queueService: QueueService,
   ) {
     this.outputDir = this.configService.get('OUTPUT_DIR') || './output';
     this.minConfidenceThreshold = parseFloat(
@@ -888,15 +890,16 @@ export class PdfService {
     const jobId = results.length > 0 ? results[0].jobId : null;
 
     // Send results email asynchronously (non-blocking)
-    this.sendQuizResultsEmailAsync(
-      userName,
-      userEmail,
-      score,
-      totalMarks,
-      results,
-      jobId,
-    ).catch((error) => {
-      this.logger.error(`Failed to send quiz results email: ${error.message}`);
+    // Send results email via queue
+    this.queueService.add(`send-email-${userEmail}-${Date.now()}`, async () => {
+      await this.sendQuizResultsEmailAsync(
+        userName,
+        userEmail,
+        score,
+        totalMarks,
+        results,
+        jobId,
+      );
     });
 
     return {
