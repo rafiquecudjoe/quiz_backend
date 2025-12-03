@@ -1861,4 +1861,38 @@ export class PdfService {
       difficulty: question.difficulty,
     };
   }
+
+  /**
+   * Update question text (actually updates QuestionPart text as frontend uses part IDs)
+   */
+  async updateQuestionText(partId: string, text: string): Promise<any> {
+    this.logger.log(`Attempting to update question part ${partId} text`);
+
+    if (!text || text.trim().length === 0) {
+      throw new Error('Question text cannot be empty');
+    }
+
+    // Check if question part exists first
+    const existingPart = await this.prisma.questionPart.findUnique({
+      where: { id: partId },
+    });
+
+    if (!existingPart) {
+      this.logger.error(`Question part not found with ID: ${partId}`);
+      throw new Error(`Question part not found with ID: ${partId}`);
+    }
+
+    const updatedPart = await this.prisma.questionPart.update({
+      where: { id: partId },
+      data: { questionText: text },
+    });
+
+    this.logger.log(`✅ Updated question part ${partId} text`);
+
+    return {
+      success: true,
+      questionId: updatedPart.id, // Return part ID as "questionId" to match frontend expectation
+      text: updatedPart.questionText,
+    };
+  }
 }

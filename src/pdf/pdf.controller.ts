@@ -622,6 +622,17 @@ export class PdfController {
     }
     return this.pdfService.updateQuestionDifficulty(questionId, body.difficulty);
   }
+
+  @Patch('questions/:questionId/text')
+  async updateQuestionText(
+    @Param('questionId') questionId: string,
+    @Body() body: { text: string },
+  ) {
+    if (!body.text) {
+      throw new HttpException('Text is required', HttpStatus.BAD_REQUEST);
+    }
+    return this.pdfService.updateQuestionText(questionId, body.text);
+  }
 }
 
 
