@@ -27,7 +27,7 @@ export class MinioService implements OnModuleInit {
     const useSSL = this.configService.get('MINIO_USE_SSL') === 'true';
     const accessKey = this.configService.get('MINIO_ACCESS_KEY') || 'minioadmin';
     const secretKey = this.configService.get('MINIO_SECRET_KEY') || 'minioadmin';
-    
+
     this.bucketName = this.configService.get('MINIO_BUCKET_NAME') || 'pdf-diagrams';
     this.publicUrl = this.configService.get('MINIO_PUBLIC_URL') || `http://${endpoint}:${port}`;
 
@@ -46,7 +46,7 @@ export class MinioService implements OnModuleInit {
     try {
       // Check if bucket exists, create if not
       const exists = await this.minioClient.bucketExists(this.bucketName);
-      
+
       if (!exists) {
         await this.minioClient.makeBucket(this.bucketName, 'us-east-1');
         this.logger.log(`✅ Created MinIO bucket: ${this.bucketName}`);
@@ -72,7 +72,7 @@ export class MinioService implements OnModuleInit {
           }
         ]
       };
-      
+
       await this.minioClient.setBucketPolicy(
         this.bucketName,
         JSON.stringify(policy),
@@ -179,7 +179,7 @@ export class MinioService implements OnModuleInit {
   ): Promise<UploadResult> {
     const ext = path.extname(diagramPath);
     const objectKey = `${jobId}/page_${pageNumber}_diagram_${diagramIndex}${ext}`;
-    
+
     // Determine content type based on extension
     const contentType = ext === '.png' ? 'image/png' : 'image/jpeg';
 
@@ -265,6 +265,19 @@ export class MinioService implements OnModuleInit {
     } catch (error) {
       this.logger.error(`❌ Health check failed: ${error.message}`);
       return false;
+    }
+  }
+
+  /**
+   * Download a file from MinIO to a local path
+   */
+  async downloadFile(objectKey: string, localPath: string): Promise<void> {
+    try {
+      await this.minioClient.fGetObject(this.bucketName, objectKey, localPath);
+      this.logger.log(`✅ Downloaded: ${objectKey} → ${localPath}`);
+    } catch (error) {
+      this.logger.error(`❌ Download failed: ${error.message}`);
+      throw error;
     }
   }
 }

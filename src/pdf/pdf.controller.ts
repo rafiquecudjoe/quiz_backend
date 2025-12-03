@@ -593,8 +593,18 @@ export class PdfController {
       : path.join(process.cwd(), fullJob.originalPath);
 
     if (!fs.existsSync(pdfPath)) {
-      this.logger.error(`PDF file not found at: ${pdfPath}`);
-      return res.status(404).json({ error: 'PDF file not found on server' });
+      this.logger.warn(`PDF file not found at: ${pdfPath}. Attempting to restore from MinIO...`);
+
+      // Try to restore from MinIO
+      try {
+        const minioKey = `pdfs/${jobId}/${fullJob.filename}`;
+        await this.pdfService.restorePdfFromMinio(minioKey, pdfPath);
+        this.logger.log(`✅ Restored PDF from MinIO to ${pdfPath}`);
+      } catch (error) {
+        this.logger.error(`Failed to restore PDF from MinIO: ${error.message}`);
+        this.logger.error(`PDF file not found at: ${pdfPath}`);
+        return res.status(404).json({ error: 'PDF file not found on server' });
+      }
     }
 
     res.setHeader('Content-Type', 'application/pdf');
@@ -602,6 +612,44 @@ export class PdfController {
 
     const stream = fs.createReadStream(pdfPath);
     stream.pipe(res);
+  }
+
+  /**
+   * Re-upload PDF for a job
+   * POST /pdf/jobs/:jobId/reupload
+   */
+  @Post('jobs/:jobId/reupload')
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          // Use original filename or generate new one, but we'll rename it in service anyway if needed
+          // Actually, we want to match the expected path if possible, but we can't easily know it here.
+          // So we save it to uploads and let service handle the logic.
+          const uniqueName = `${uuidv4()}${path.extname(file.originalname)}`;
+          cb(null, uniqueName);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (file.mimetype !== 'application/pdf') {
+          return cb(
+            new HttpException('Only PDF files allowed', HttpStatus.BAD_REQUEST),
+            false,
+          );
+        }
+        cb(null, true);
+      },
+    }),
+  )
+  async reuploadPdf(
+    @Param('jobId') jobId: string,
+    @UploadedFile() file: Express.Multer.File,
+  ) {
+    if (!file) {
+      throw new HttpException('No file uploaded', HttpStatus.BAD_REQUEST);
+    }
+    return this.pdfService.reuploadJobPdf(jobId, file);
   }
 
   @Patch('question-part/:partId/answer')
@@ -632,6 +680,18 @@ export class PdfController {
       throw new HttpException('Text is required', HttpStatus.BAD_REQUEST);
     }
     return this.pdfService.updateQuestionText(questionId, body.text);
+  }
+
+  @Patch('questions/:questionId/context')
+  async updateQuestionContext(
+    @Param('questionId') questionId: string,
+    @Body() body: { context: string },
+  ) {
+    // Context can be empty string if user wants to remove it
+    if (body.context === undefined) {
+      throw new HttpException('Context is required', HttpStatus.BAD_REQUEST);
+    }
+    return this.pdfService.updateQuestionContext(questionId, body.context);
   }
 }
 

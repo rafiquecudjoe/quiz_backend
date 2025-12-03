@@ -141,6 +141,16 @@ export class PdfService {
       },
     });
 
+    // Upload original PDF to MinIO for persistence
+    try {
+      const minioKey = `pdfs/${jobId}/${file.originalname}`;
+      await this.minioService.uploadFile(file.path, minioKey, 'application/pdf');
+      this.logger.log(`✅ Backup: Uploaded original PDF to MinIO: ${minioKey}`);
+    } catch (error) {
+      this.logger.warn(`⚠️ Failed to upload backup PDF to MinIO: ${error.message}`);
+      // Continue processing even if backup fails
+    }
+
     // Process in background
     this.processInBackground(jobId, file.path, batchSizeValue).catch(
       (error) => {
@@ -1096,6 +1106,45 @@ export class PdfService {
     try {
       this.logger.log(`Processing answers PDF for job ${jobId}: ${file.originalname}${paperSection ? ` (${paperSection})` : ''}`);
 
+      // Check if original PDF exists (needed for context sometimes, though strictly for answers we use the uploaded answers PDF)
+      // Wait, the python script takes the ANSWERS pdf as input (file.path), not the original question paper.
+      // But wait, does it need the original paper?
+      // The command is: python3 process_answers_pdf.py <answers_pdf_path> <batch_size>
+      // It seems it processes the *uploaded* answers file.
+
+      // However, if the user meant "I lost the uploaded PDF" referring to the QUESTION paper, and they are trying to do something that requires it...
+      // The error log provided by user was: [PdfController] PDF file not found at: /app/uploads/...
+      // This error usually comes from an endpoint that tries to read the ORIGINAL file.
+      // Let's look at where that error comes from. It's likely in `getJobWithOriginalPath` or similar, or maybe `processInBackground` if it was interrupted.
+
+      // But for `processAnswersPdf`, `file` is the NEWLY uploaded answers PDF.
+
+      // Let's look at `processInBackground` or `getReplacementQuestion` or `submitQuiz`.
+      // Actually, the user said: "PDF file not found at: /app/uploads/..."
+      // This path looks like the one stored in `originalPath` of the job.
+
+      // If I look at `processInBackground`, it uses `filePath`.
+      // If I look at `getJobWithOriginalPath`, it returns the path.
+
+      // Let's check `ensureFileExists` helper if I have one, or where `fs.existsSync` is called on `originalPath`.
+
+      // The error log "[PdfController] PDF file not found at..." suggests it's in the controller or service.
+      // I see `getJobWithOriginalPath` just returns the DB record.
+
+      // Let's look at `PdfController` again. I don't see that exact error message in the snippet I viewed.
+      // Wait, I missed it?
+
+      // Let's search for "PDF file not found at" in the codebase.
+
+      // For now, I will add the restoration logic to `processInBackground` just in case, but `processInBackground` is called immediately after upload, so file should be there.
+      // The issue is likely when *re-processing* or accessing the file later.
+
+      // If the user is just uploading a NEW pdf, it should work.
+      // But if they are trying to process answers for an OLD job, and that process needs the OLD question paper...
+      // `processAnswersPdf` calls `answerLinkingService.linkAnswersToQuestions`. Does that need the original PDF? Probably not, it uses the DB.
+
+      // Let's search for the error message first.
+
       // Execute Python script to process answers
       const pythonScriptPath = this.configService.get('PYTHON_SCRIPT_PATH');
       const pythonScriptDir = path.dirname(pythonScriptPath);
@@ -1893,6 +1942,101 @@ export class PdfService {
       success: true,
       questionId: updatedPart.id, // Return part ID as "questionId" to match frontend expectation
       text: updatedPart.questionText,
+    };
+  }
+
+  /**
+   * Update question context (updates the parent Question's text)
+   */
+  async updateQuestionContext(partId: string, context: string): Promise<any> {
+    this.logger.log(`Attempting to update context for question part ${partId}`);
+
+    // Check if question part exists first to get the parent question ID
+    const existingPart = await this.prisma.questionPart.findUnique({
+      where: { id: partId },
+      include: { question: true },
+    });
+
+    if (!existingPart) {
+      this.logger.error(`Question part not found with ID: ${partId}`);
+      throw new Error(`Question part not found with ID: ${partId}`);
+    }
+
+    const parentQuestionId = existingPart.questionId;
+
+    // Update the parent question's text (which serves as context)
+    // If context is empty, we might want to set it to match the part text or handle it differently
+    // For now, we'll just update the parent question text
+    const updatedQuestion = await this.prisma.question.update({
+      where: { id: parentQuestionId },
+      data: { questionText: context },
+    });
+
+    this.logger.log(`✅ Updated context (parent question text) for question ${parentQuestionId}`);
+
+    return {
+      success: true,
+      questionId: existingPart.id,
+      context: updatedQuestion.questionText,
+    };
+  }
+
+  /**
+   * Restore PDF from MinIO to local path
+   */
+  async restorePdfFromMinio(minioKey: string, localPath: string): Promise<void> {
+    // Ensure directory exists
+    const dir = path.dirname(localPath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+
+    await this.minioService.downloadFile(minioKey, localPath);
+  }
+
+  /**
+   * Re-upload PDF for an existing job
+   */
+  async reuploadJobPdf(jobId: string, file: Express.Multer.File): Promise<any> {
+    this.logger.log(`Re-uploading PDF for job ${jobId}`);
+
+    const job = await this.prisma.processingJob.findUnique({
+      where: { jobId },
+    });
+
+    if (!job) {
+      throw new Error('Job not found');
+    }
+
+    // Update job with new file path
+    // We keep the original filename in DB if we want, or update it. 
+    // Usually re-upload implies restoring the SAME file content, but user might upload a different file with same name or different name.
+    // We'll update originalPath to the new location.
+
+    await this.prisma.processingJob.update({
+      where: { jobId },
+      data: {
+        originalPath: file.path,
+        // We could update filename too if it changed, but maybe better to keep original filename context?
+        // Let's update filename just in case it's a "fix" upload
+        filename: file.originalname,
+      },
+    });
+
+    // Upload to MinIO for persistence
+    try {
+      const minioKey = `pdfs/${jobId}/${file.originalname}`;
+      await this.minioService.uploadFile(file.path, minioKey, 'application/pdf');
+      this.logger.log(`✅ Backup: Re-uploaded PDF to MinIO: ${minioKey}`);
+    } catch (error) {
+      this.logger.warn(`⚠️ Failed to upload re-uploaded PDF to MinIO: ${error.message}`);
+    }
+
+    return {
+      success: true,
+      message: 'PDF re-uploaded successfully',
+      jobId,
+      newPath: file.path
     };
   }
 }
